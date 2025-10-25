@@ -250,12 +250,15 @@ function executeScript() {
 
   blockElements.forEach(el => {
     if (el.classList.contains("setColorBlock")) {
-      const pin = el.querySelector(".setColorBlockPinNum").value;
-      const color = el.querySelector(".setColorBlockColorInput").value;
+      let pin = el.querySelector(".setColorBlockPinNum").value;
+      let color = el.querySelector(".setColorBlockColorInput").value;
       if (pin && color) blocks.push(new CodeBlock("light", [pin], color));
     }
     else if (el.classList.contains("turnOffBlock")) {
-      const pin = el.querySelector(".turnOffBlockPinNum").value;
+      let pin = el.querySelector(".turnOffBlockPinNum").value;
+      if(pin in variables){
+        console.log(`${pin} variable was found`);
+      }
       if (pin) blocks.push(new CodeBlock("turnOff", [pin], "#000000"));
     }
     else if (el.classList.contains("setBrightnessBlock")) {
