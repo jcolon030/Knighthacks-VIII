@@ -146,7 +146,6 @@ header {
   flex: 1;
   height: 100vh;
   background-color: hsl(0, 0%, 75%);
-  overflow-y: auto;
 }
 
 #lightDisplayContainer {
