@@ -157,8 +157,7 @@ header {
 /* =========================
    Controls & Buttons
    ========================= */
-
-#setColorBlock {
+.setColorBlock {
   display: inline-block;
   margin-top: 5vh;
   margin-left: 5vh;
@@ -170,24 +169,49 @@ header {
   transition: background-color 0.25s;
 }
 
-#setColorBlock:hover {
+.setColorBlock:hover {
   background-color: hsl(0, 87%, 55%);
   cursor: pointer;
 }
 
-#setColorBlock input {
+.setColorBlock input {
   width: 3vh;
 }
 
-#setColorBlock #colorInput {
+.setColorBlock .setColorBlockColorInput {
   width: 6vh;
 }
+
+.turnOffBlock {
+  display: inline-block;
+  margin-top: 5vh;
+  margin-left: 5vh;
+  padding: 1vh;
+  font-size: 2.5vh;
+  font-family: monospace;
+  border-radius: 2vh;
+  background-color: hsl(240, 57%, 73%);
+  transition: background-color 0.25s;
+}
+
+.turnOffBlock:hover {
+  background-color: hsl(240, 57%, 60%);
+  cursor: pointer;
+}
+
+.turnOffBlock input {
+  width: 3vh;
+}
+
 
 #clearButton,
 #execute {
   border: none;
   border-radius: 1vh;
   transition: background-color 0.25s;
+  box-shadow: 0.3vh 0.3vh 0.5vh hsla(0, 0%, 0%, 0.518);
+  font-family: "Trend Sans One Regular";
+  font-size:1.5vh;
 }
 
 #clearButton {
@@ -199,6 +223,7 @@ header {
 #clearButton:hover,
 #execute:hover {
   background-color: hsl(0, 0%, 67%);
+  cursor:pointer;
 }
 
 #execute {
