@@ -1,7 +1,19 @@
-body{
-    background-color: lightgray;
+:root{
+    --bgColor: #000814;
+    --darkBlue: #001D3D;
+    --lighterBlue: #003566;
+    --darkerYellow: #FFC300;
+    --lighterYellow: #FFD60A;
+    --navColor: #000204;
 }
 
+body{
+    background-color: var(--bgColor);
+    font-family: Helvetica;
+    color: var(--darkerYellow);
+    margin: 0;
+}
+/* 
 :root.darkBG body{
     background-color: hsl(180, 0%, 14%);
 }
@@ -12,7 +24,7 @@ body{
 
 #icon{
     position: absolute;
-    top: 0;
+    bottom: 0;
     right: 0;
     padding: 10px;
     transition: background-color 0.25s;
@@ -27,8 +39,54 @@ body{
 
 #icon:active{
     width: 1.3em;
+} */
+
+h1, h2{
+    /* text-shadow: 3px 3px 10px var(--lighterYellow); */
 }
 
 #welcome{
-    font-family: Helvetica;
+    margin: 10px;
+}
+
+#home{
+    margin: 10px;
+}
+
+#navbar{
+    background-color: var(--navColor);
+    margin: 0;
+    padding: 5px;
+    height: 30px;
+}
+
+.navbarLinks{
+    background-color: var(--darkBlue);
+    border-radius: 4px;
+    padding: 5px;
+    border: 1px solid white;
+    display: inline-block;
+}
+
+#dropdown{
+    display: inline-block;
+}
+
+#dropdownContent a{
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: var(--darkerYellow);
+}
+
+#dropdown #dropdownContent{
+    display: none;
+    background-color: var(--darkBlue);
+    position: absolute;
+    min-width: 100px;
+    box-shadow: 4px 4px 5px hsla(0, 0%, 0%, 0.87);
+}
+
+#dropdown:hover #dropdownContent{
+    display: block;
 }
