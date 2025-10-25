@@ -137,7 +137,7 @@ header{
     font-size: 2.5vh;
     border-radius: 2vh;
     display: inline-block;
-    margin-top: 4vh;
+    margin-top: 5vh;
     margin-left: 5vh;
     font-family: monospace;
     transition: background-color 0.25s;
@@ -154,4 +154,28 @@ header{
 
 #setColorBlock #colorInput{
     width: 6vh;
+}
+
+#clearButton{
+    position: absolute;
+    right: 4vh;
+    top: 0.9vh;
+    border-radius: 1vh;
+    border: none;
+    transition: background-color 0.25s;
+}
+
+#clearButton:hover{
+    background-color: hsl(0, 0%, 67%);
+}
+
+#execute{
+    margin-left: 85%;
+    border-radius: 1vh;
+    border: none;
+    transition: background-color 0.25s;
+}
+
+#execute:hover{
+    background-color: hsl(0, 0%, 67%);
 }

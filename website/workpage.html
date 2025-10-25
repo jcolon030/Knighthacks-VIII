@@ -24,18 +24,21 @@
 
         <div id="flexcontainer">
             <div id="blocksPanel">
-                <span id="setColorBlock">
-                    light <input type="text"> set color <input type="text" id="colorInput">
+                <span id="setColorBlock" onclick="setColorBlockClicked()">
+                    light <input type="text" id="setColorBlockPinNum"> set color <input type="text" id="setColorBlockColorInput">
                 </span>
+                <button id="clearButton" onclick="clearButton()">Clear</button>
             </div>
 
             <div id="blockSpace">
-                scripting area here
+                <button id="execute" onclick="executeScript()">Execute</button>
             </div>
 
             <div id="lightDisplayContainer">
                 light display here
             </div>
         </div>
+
+        <script src="script.js"></script>
     </body>
 </html>

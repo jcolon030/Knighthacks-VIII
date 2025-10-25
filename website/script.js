@@ -107,3 +107,22 @@ function onExport() {
   const sketch = buildArduinoSketch(blocks);
   downloadTextFile('LightHacks.ino', sketch, 'text/x-c++src');
 }
+
+let setColorBlock = document.getElementById("setColorBlock");
+let blocksPanel = document.getElementById("blockSpace");
+let numBlocks = 0;
+
+function setColorBlockClicked(){
+    numBlocks++;
+    blocksPanel.innerHTML += `<span id="setColorBlock" style="margin-left:30vh;margin-top:0;margin-bottom:1vh;">light <input type="text"> set color <input type="text" id="setColorBlockColorInput"></span>`;
+}
+
+function clearButton(){
+    blocksPanel.innerHTML = '<button id="execute" onclick="executeScript()">Execute</button>';
+}
+
+function executeScript(){
+    for(let i = 0; i < numBlocks; i++){
+        console.log(`Executing blocks`);
+    }
+}
