@@ -1,0 +1,206 @@
+@import url(https://db.onlinewebfonts.com/c/83e4a6b639612cd501853be5a7cf97ab?family=Trend+Sans+One+Regular);
+
+:root {
+  --bgColor: hsl(216, 100%, 7%);
+  --darkBlue: #001d3d;
+  --lighterBlue: #003566;
+  --darkerYellow: #ffc300;
+  --lighterYellow: #ffd60a;
+  --navColor: #000204;
+}
+
+/* =========================
+   Homepage & Layout Styles
+   ========================= */
+
+#homepage {
+  margin: 0;
+  font-family: "Trend Sans One Regular";
+  background-color: hsla(217, 100%, 7%, 0.89);
+  background-image: url("../images/bg.jpeg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
+  background-size: cover;
+  background-blend-mode: multiply;
+}
+
+#workspacepage {
+  margin: 0;
+  font-family: "Trend Sans One Regular";
+}
+
+#flexcontainer {
+  display: flex;
+  flex-direction: row;
+  margin: 0;
+  font-family: "Trend Sans One Regular";
+  background-color: hsla(217, 100%, 7%, 0.89);
+}
+
+/* =========================
+   Hero Text
+   ========================= */
+
+#lightUp {
+  margin: 10px;
+  margin-top: 15vh;
+  margin-left: 12vh;
+  color: white;
+  font-size: 12vh;
+  text-shadow: 0 0 1.5vh white;
+}
+
+#slogan {
+  margin: 2vh;
+  margin-left: 14vh;
+  color: #ff4ff3;
+  font-size: 3.5vh;
+  text-shadow: 0 0 0.5vh #ff4ff3;
+}
+
+/* =========================
+   Navbar
+   ========================= */
+
+#navbar {
+  height: 2vh;
+  margin: 0;
+  padding: 1vh;
+  background: linear-gradient(to right, #bafb02, #e6ff80);
+}
+
+#navbarwhite {
+  height: 1vh;
+  margin: 0;
+  background-color: white;
+}
+
+/* =========================
+   Buttons & Links
+   ========================= */
+
+.createProject {
+  display: inline-block;
+  margin-top: 8vh;
+  margin-left: 14vh;
+  padding: 2vh 4vh;
+  color: white;
+  font-size: 3vh;
+  text-decoration: none;
+  text-shadow: 0 0 0.8vh white;
+  background-color: hsl(120, 100%, 49%);
+  border-radius: 10vh;
+  transition: background-color 0.25s;
+}
+
+.createProject:hover {
+  background-color: hsl(120, 100%, 35%);
+}
+
+/* =========================
+   Header Layout
+   ========================= */
+
+header {
+  display: flex;
+  justify-content: space-between;
+  color: white;
+  font-size: 3vh;
+  text-shadow: 0 0 0.5vh white;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+}
+
+.right {
+  display: flex;
+  gap: 3vh;
+  margin-right: 3vh;
+}
+
+#title {
+  display: inline;
+}
+
+#logo {
+  width: 8vh;
+  margin: 2vh;
+}
+
+/* =========================
+   Workspace Panels
+   ========================= */
+
+#blocksPanel {
+  position: relative;
+  width: 45vh;
+  height: 100vh;
+  background-color: hsl(0, 0%, 50%);
+  box-shadow: 1vh 0 2vh hsla(0, 0%, 0%, 0.55);
+}
+
+#blockSpace {
+  flex: 1;
+  height: 100vh;
+  background-color: hsl(0, 0%, 75%);
+}
+
+#lightDisplayContainer {
+  flex-shrink: 0;
+  width: 35vw;
+  height: 100vh;
+}
+
+/* =========================
+   Controls & Buttons
+   ========================= */
+
+#setColorBlock {
+  display: inline-block;
+  margin-top: 5vh;
+  margin-left: 5vh;
+  padding: 1vh;
+  font-size: 2.5vh;
+  font-family: monospace;
+  border-radius: 2vh;
+  background-color: hsl(0, 87%, 68%);
+  transition: background-color 0.25s;
+}
+
+#setColorBlock:hover {
+  background-color: hsl(0, 87%, 55%);
+  cursor: pointer;
+}
+
+#setColorBlock input {
+  width: 3vh;
+}
+
+#setColorBlock #colorInput {
+  width: 6vh;
+}
+
+#clearButton,
+#execute {
+  border: none;
+  border-radius: 1vh;
+  transition: background-color 0.25s;
+}
+
+#clearButton {
+  position: absolute;
+  top: 0.9vh;
+  right: 4vh;
+}
+
+#clearButton:hover,
+#execute:hover {
+  background-color: hsl(0, 0%, 67%);
+}
+
+#execute {
+  margin-left: 85%;
+}
