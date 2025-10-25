@@ -64,6 +64,8 @@ strip.show();
   setVar: ({ varName, value }) => `${varName} = ${resolveValue(value)};`,
 
   incVar: ({ varName, value }) => `${varName} += ${resolveValue(value)};`,
+
+  changeVar: ({ varName, value }) => `${varName} += ${resolveValue(value)};`,
 };
 
 // ======================
@@ -216,6 +218,14 @@ function incVarBlockClicked() {
   blockSpace.querySelectorAll('.incVarBlock select').forEach(populateVarSelect);
 }
 
+function changeVarBlockClicked() {
+  blockSpace.innerHTML += `
+    <span class="changeVarBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
+      change <select class="varSelect"></select> by <input class="varValueInput" placeholder="value">
+    </span>`;
+  blockSpace.querySelectorAll('.changeVarBlock select').forEach(populateVarSelect);
+}
+
 function populateVarSelect(select) {
   select.innerHTML = '';
   Object.keys(variables).forEach(varName => {
@@ -235,7 +245,7 @@ function executeScript() {
   blocks = []; // reset
 
   const blockElements = blockSpace.querySelectorAll(
-    ".setColorBlock, .turnOffBlock, .setBrightnessBlock, .delayBlock, .setVarBlock, .incVarBlock"
+    ".setColorBlock, .turnOffBlock, .setBrightnessBlock, .delayBlock, .setVarBlock, .incVarBlock, .changeVarBlock"
   );
 
   blockElements.forEach(el => {
@@ -266,6 +276,11 @@ function executeScript() {
       const varName = el.querySelector('.varSelect').value;
       const value = el.querySelector('.varValueInput').value;
       if (varName && value) blocks.push(new CodeBlock("incVar", [], "#FFFFFF", { varName, value }));
+    }
+    else if (el.classList.contains("changeVarBlock")) {
+      const varName = el.querySelector('.varSelect').value;
+      const value = el.querySelector('.varValueInput').value;
+      if (varName && value) blocks.push(new CodeBlock("changeVar", [], "#FFFFFF", { varName, value }));
     }
   });
 
@@ -324,10 +339,10 @@ blockSpace.addEventListener('drop', e => {
     newBlock.innerHTML = 'wait <input type="text" class="delayBlockTime" placeholder="ms">';
     newBlock.style.width = '15vh';
   }
-  else if (className.includes('setVarBlock') || className.includes('incVarBlock')) {
+  else if (className.includes('setVarBlock') || className.includes('changeVarBlock')) {
     newBlock.innerHTML = className.includes('setVarBlock') 
       ? 'set <select class="varSelect"></select> = <input class="varValueInput" placeholder="value">'
-      : 'increment <select class="varSelect"></select> by <input class="varValueInput" placeholder="value">';
+      : 'change <select class="varSelect"></select> by <input class="varValueInput" placeholder="value">';
     newBlock.querySelectorAll('.varSelect').forEach(populateVarSelect);
   }
 
@@ -341,3 +356,29 @@ function clearButton() {
     blockSpace.innerHTML = '<button id="execute" onclick="executeScript()">Execute</button>';
     blocks = [];
 }
+
+let draggedBlock = null;
+
+blockSpace.addEventListener('dragstart', e => {
+  if (e.target.classList.contains('draggableBlock')) {
+    draggedBlock = e.target;
+  }
+});
+
+blockSpace.addEventListener('dragover', e => {
+  e.preventDefault();
+  const target = e.target.closest('.draggableBlock');
+  if (target && target !== draggedBlock) {
+    const rect = target.getBoundingClientRect();
+    const midY = rect.top + rect.height / 2;
+    if (e.clientY < midY) {
+      blockSpace.insertBefore(draggedBlock, target);
+    } else {
+      blockSpace.insertBefore(draggedBlock, target.nextSibling);
+    }
+  }
+});
+
+blockSpace.addEventListener('drop', e => {
+  draggedBlock = null;
+});
