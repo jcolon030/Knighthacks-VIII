@@ -4,8 +4,7 @@ const BLOCK_GENERATORS = {
     const { r, g, b } = hexToRgb(color || "#00FF00");
     return `
 for (int i = 0; i < ${lightIDs.length}; i++) {
-  int idx[] = ${{lightIDs}};
-  strip.setPixelColor(idx, strip.Color(${r}, ${g}, ${b}));
+  strip.setPixelColor(idx[i], strip.Color(${r}, ${g}, ${b}));
 }
 strip.show();
 `;
