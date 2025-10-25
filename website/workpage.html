@@ -8,16 +8,34 @@
         <link rel="icon" type="image/x-icon" href="..\images\faviconsmall.png">
     </head>
     <body id="workspacepage">
-        <div id="blocksPanel">
-            panel goes here
-        </div>
+        <nav id="navbar"></nav>
+        <header style="background-color: hsla(217, 100%, 7%, 0.89);">
+            <div class="left">
+                <img src="..\images\favicon.png" id="logo">
+                <h3>Light Hacks</h3>
+            </div>
+            <div class="right">
+                <h4>Projects</h4>
+                <h4>Ideas</h4>
+                <h4>Profile</h4>
+            </div>
+        </header>
+        <nav id="navbarwhite"></nav>
 
-        <div id="blockSpace">
-            scripting area here
-        </div>
+        <div id="flexcontainer">
+            <div id="blocksPanel">
+                <span id="setColorBlock">
+                    light <input type="text"> set color <input type="text" id="colorInput">
+                </span>
+            </div>
 
-        <div id="lightDisplayContainer">
-            light display here
+            <div id="blockSpace">
+                scripting area here
+            </div>
+
+            <div id="lightDisplayContainer">
+                light display here
+            </div>
         </div>
     </body>
 </html>
