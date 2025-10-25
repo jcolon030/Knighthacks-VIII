@@ -4,7 +4,7 @@ const BLOCK_GENERATORS = {
     const { r, g, b } = hexToRgb(color || "#00FF00");
     return `
 for (int i = 0; i < ${lightIDs.length}; i++) {
-  int idx = ${JSON.stringify(lightIDs)}[i];
+  int idx[] = ${{lightIDs}};
   strip.setPixelColor(idx, strip.Color(${r}, ${g}, ${b}));
 }
 strip.show();
@@ -120,8 +120,6 @@ async function onExport() {
   const data = await res.json();
   console.log("Server response:", data);
 }
-
-
 
 let blockSpace = document.getElementById("blockSpace");
 let textInputs;
