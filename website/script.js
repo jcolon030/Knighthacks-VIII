@@ -1,10 +1,14 @@
+blocks = []
+
+
 // Registry of "block type" -> generator function
 const BLOCK_GENERATORS = {
   for: ({ lightIDs, color }) => {
     const { r, g, b } = hexToRgb(color || "#00FF00");
     return `
-for (int i = 0; i < ${lightIDs.length}; i++) {
-  strip.setPixelColor(idx[i], strip.Color(${r}, ${g}, ${b}));
+int idx[] = {${lightIDs}};
+for (int i = 0; i < 5; i++) {
+  strip.setPixelColor(idx[i], strip.Color(0, 255, 0));
 }
 strip.show();
 `;
@@ -14,6 +18,17 @@ strip.show();
 
   // add more blocks here...
   // "fade", "blink", "wipe", etc.
+
+  light: ({lightIDs, color}) => {
+    const { r, g, b } = hexToRgb(color || "#00FF00");
+    return `
+int idx[] = {${lightIDs}};
+for (int i = 0; i < 5; i++) {
+  strip.setPixelColor(idx[i], strip.Color(${r}, ${g}, ${b}));
+}
+strip.show();
+`;
+  }
 };
 
 // helper: "#RRGGBB" -> {r,g,b}
@@ -103,21 +118,11 @@ const blocks = [
 `
 // When user clicks "Export"
 async function onExport() {
+  
   const sketch = buildArduinoSketch(blocks);
-
-  const res = await fetch("http://127.0.0.1:8000/enqueue", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      user_id: "alice",
-      device_id: "light-1",
-      code: sketch,   // <-- use the right variable here
-      env: "nano"
-    })
-  });
-
-  const data = await res.json();
-  console.log("Server response:", data);
+  // Arduino IDE likes .ino files
+  const filename = `LiveSketch_${new Date().toISOString().replace(/[:.]/g, "-")}.ino`;
+  downloadTextFile(filename, sketch, "text/plain");
 }
 
 let blockSpace = document.getElementById("blockSpace");
@@ -134,7 +139,19 @@ function clearButton(){
 function executeScript(){
   console.log(`Executing blocks`);
   textInputs = document.querySelectorAll('input[type="text"]');
+  values = [];
+  value_counter = 0;
+  block_counter = 0;
   textInputs.forEach(input => {
     console.log(input.value);
+    if (input.value != "") {
+      values[value_counter] = input.value;
+      value_counter++
+    }
+    console.log(values[0]);
+    blocks[block_counter] = new CodeBlock("light", values[0], values[1]);
+    block_counter++
   });
+  console.log(values);
+  onExport()
 }
