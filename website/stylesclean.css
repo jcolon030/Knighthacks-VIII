@@ -160,7 +160,7 @@ header {
 .setColorBlock {
   display: inline-block;
   margin-top: 5vh;
-  margin-left: 5vh;
+  margin-left: 3vh;
   padding: 1vh;
   font-size: 2.5vh;
   font-family: monospace;
@@ -185,7 +185,7 @@ header {
 .turnOffBlock {
   display: inline-block;
   margin-top: 5vh;
-  margin-left: 5vh;
+  margin-left: 3vh;
   padding: 1vh;
   font-size: 2.5vh;
   font-family: monospace;
@@ -203,6 +203,27 @@ header {
   width: 3vh;
 }
 
+.setBrightnessBlock{
+    display: inline-block;
+    margin-top: 5vh;
+    margin-left: 3vh;
+    padding: 1vh;
+    font-size: 2.5vh;
+    font-family: monospace;
+    border-radius: 2vh;
+    background-color: hsl(120, 65%, 55%);
+    transition: background-color 0.25s;
+}
+
+.setBrightnessBlock:hover{
+    background-color: hsl(120, 65%, 40%);
+    cursor:pointer;
+}
+
+.setBrightnessBlock input{
+    width: 3vh;
+}
+
 
 #clearButton,
 #execute {
@@ -214,6 +235,15 @@ header {
   font-size:1.5vh;
 }
 
+#tutorialbutton{
+    position: absolute;
+    top: 0.7vh;
+    right: 12.5vh;
+    border: none;
+    border-radius: 100%;
+    box-shadow: 0.3vh 0.3vh 0.5vh hsla(0, 0%, 0%, 0.518);
+}
+
 #clearButton {
   position: absolute;
   top: 0.9vh;
@@ -221,7 +251,8 @@ header {
 }
 
 #clearButton:hover,
-#execute:hover {
+#execute:hover,
+#tutorialbutton:hover {
   background-color: hsl(0, 0%, 67%);
   cursor:pointer;
 }

@@ -146,6 +146,9 @@ function turnOffBlockClicked() {
     </span>`;
 }
 
+function setBrightnessBlockClicked(){
+  blockSpace.innerHTML += '<span class="setBrightnessBlock" style="margin-left:20vh;margin-top:0;margin-bottom:1vh;">light <input class="setBrightnessBlockPinNum" type="text" placeholder="ID"> setBrightness <input class="setBrightnessBlockBrightnessInput" type="text" placeholder="%"></span>';
+}
 
 function clearButton(){
   blockSpace.innerHTML = '<button id="execute" onclick="executeScript()">Execute</button>';

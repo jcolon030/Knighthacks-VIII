@@ -28,14 +28,19 @@
                 <!--using javascript, this span is copied and added to the innterHTML of the blockSpace div-->
                 <span class="setColorBlock" onclick="setColorBlockClicked()">
                 light <input class="setColorBlockPinNum">
-                set color <input class="setColorBlockColorInput">
+                setColor <input class="setColorBlockColorInput">
                 </span>
 
                 <span class="turnOffBlock" onclick="turnOffBlockClicked()">
                 turn off light <input class="turnOffBlockPinNum">
                 </span>
 
+                <span class="setBrightnessBlock" onclick="setBrightnessBlockClicked()">
+                    light <input class="setBrightnessBlockPinNum">
+                    setBrightness <input class="setBrightnessBlockBrightnessInput">
+                </span>
 
+                <button id="tutorialbutton">?</button>
                 <!--Clears blockSpace innerHTML except for the execute button-->
                 <button id="clearButton" onclick="clearButton()">Clear</button>
             </div>
