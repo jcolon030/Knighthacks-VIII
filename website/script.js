@@ -128,6 +128,9 @@ async function onExport() {
 let blockSpace = document.getElementById("blockSpace");
 let textInputs;
 
+//add a new copy of the setColor block to the blockSpace div
+//theres a bunch of inline CSS going on here and weird positioning to make them line up vertically
+//the console will throw a bunch of errors because of all of these spans having the same IDs, I think that can be fixed by just changing the ID to a class but it works so i haven't gotten around to changing it
 function setColorBlockClicked(){
   blockSpace.innerHTML += '<span id="setColorBlock" style="margin-left:20vh;margin-top:0;margin-bottom:1vh;">light <input type="text" id="setColorBlockPinNum" placeholder="ID"> set color <input type="text" id="setColorBlockColorInput" placeholder="COLOR" style="width: 15vh;"></span>';
 }

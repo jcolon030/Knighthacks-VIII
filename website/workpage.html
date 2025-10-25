@@ -24,9 +24,11 @@
 
         <div id="flexcontainer">
             <div id="blocksPanel">
+                <!--using javascript, this span is copied and added to the innterHTML of the blockSpace div-->
                 <span id="setColorBlock" onclick="setColorBlockClicked()">
                     light <input type="text" id="setColorBlockPinNum"> set color <input type="text" id="setColorBlockColorInput">
                 </span>
+                <!--Clears blockSpace innerHTML except for the execute button-->
                 <button id="clearButton" onclick="clearButton()">Clear</button>
             </div>
 
