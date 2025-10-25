@@ -23,49 +23,32 @@ body{
     color: var(--darkerYellow);
 }
 
-#navbar{
-    background-color: var(--navColor);
-    margin: 0;
-    padding: 5px;
-    height: 30px;
-    color: var(--darkerYellow);
+.title{
+    color: white;
+    padding-top: 1rem;
+    padding-left: 1rem;
 }
 
-.navbarLinks{
-    background-color: var(--darkBlue);
-    border-radius: 4px;
-    padding: 5px;
-    border: 1px solid white;
-    display: inline-block;
+.navLinks {
+    color: white;
+    border: 1px, solid, white;
+    padding: 0.5rem;
+
 }
 
-#dropdown{
-    display: inline-block;
+.navLinks:hover {
+    color: white;
 }
 
-#dropdownContent a{
-    display: block;
-    padding: 10px 15px;
-    text-decoration: none;
-    color: var(--darkerYellow);
+.center {
+    align-content: center;
 }
 
-#dropdownContent a:hover{
-    background-color: hsl(212, 100%, 7%);
+.right {
+    float: right;
 }
 
-#dropdown #dropdownContent{
-    display: none;
-    background-color: var(--darkBlue);
-    position: absolute;
-    min-width: 100px;
-    box-shadow: 4px 4px 5px hsla(0, 0%, 0%, 0.87);
-}
-
-#dropdown:hover #dropdownContent{
-    display: block;
-}
-
-#title{
-    display:inline;
+.topbar {
+    background-color: yellow;
+    height: 2rem;
 }
