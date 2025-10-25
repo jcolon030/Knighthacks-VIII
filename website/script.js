@@ -103,7 +103,20 @@ const blocks = [
 ];
 `
 // When user clicks "Export"
-function onExport() {
+async function onExport() {
   const sketch = buildArduinoSketch(blocks);
-  downloadTextFile('LightHacks.ino', sketch, 'text/x-c++src');
+
+  const res = await fetch("http://127.0.0.1:8000/enqueue", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      user_id: "alice",
+      device_id: "light-1",
+      code: sketch,   // <-- use the right variable here
+      env: "nano"
+    })
+  });
+
+  const data = await res.json();
+  console.log("Server response:", data);
 }
