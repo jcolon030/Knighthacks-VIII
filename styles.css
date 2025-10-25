@@ -1,0 +1,34 @@
+body{
+    background-color: lightgray;
+}
+
+:root.darkBG body{
+    background-color: hsl(180, 0%, 14%);
+}
+
+:root.darkBG #icon{
+    filter: invert(100%);
+}
+
+#icon{
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 10px;
+    transition: background-color 0.25s;
+    border-radius: 10px;
+    height: auto;
+    width: 1.5em;
+}
+
+#icon:hover{
+    background-color: hsl(0, 0%, 70%);
+}
+
+#icon:active{
+    width: 1.3em;
+}
+
+#welcome{
+    font-family: Helvetica;
+}
