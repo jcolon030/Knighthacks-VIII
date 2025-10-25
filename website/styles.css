@@ -25,14 +25,16 @@ body{
 
 .title{
     color: white;
-    padding-top: 1rem;
+    padding-top: 2rem;
     padding-left: 1rem;
+    font-size: 3rem;
 }
 
 .navLinks {
     color: white;
-    border: 1px, solid, white;
+    text-decoration: none;
     padding: 0.5rem;
+    font-size: 1.4rem;
 
 }
 
@@ -49,6 +51,54 @@ body{
 }
 
 .topbar {
-    background-color: yellow;
+    background-color: #BAFB02;
     height: 2rem;
+}
+
+.logo {
+    max-width: 25%;
+    margin-top: 0.75rem;
+    margin-left: 1rem;
+}
+
+.inline {
+    display: flexbox;
+}
+
+.glowing-text {
+  text-shadow:
+    0 0 5px #dadada,
+    0 0 10px #dadada,
+    0 0 20px #dadada,
+    0 0 40px #dadada;
+}
+
+.base {
+    width: 100%;
+    height: 100%;
+    margin-top: 20vh;
+}
+
+.base-text {
+    color: white;
+    font-size: 6rem;
+    margin-left: 2vh;
+}
+
+.base-subtext {
+    color: white;
+    font-size: 2rem;
+    margin-left: 2vh;
+}
+
+.glowing-subtext {
+  text-shadow:
+    0 0 5px #d428a1,
+    0 0 10px #d428a1,
+    0 0 20px #d428a1,
+    0 0 40px #d428a1;
+}
+
+.left-margin {
+    margin-right: 2rem;
 }
