@@ -22,6 +22,11 @@
 }
 
 #workspacepage{
+    margin: 0;
+    font-family: "Trend Sans One Regular";
+}
+
+#flexcontainer{
     background-color: hsla(217, 100%, 7%, 0.89);
     margin: 0;
     font-family: "Trend Sans One Regular";
@@ -51,6 +56,12 @@
     margin: 0;
     padding: 1vh;
     height: 2vh;
+}
+
+#navbarwhite{
+    background-color: white;
+    margin: 0;
+    height: 1vh;
 }
 
 .createProject{
@@ -101,20 +112,46 @@ header{
 }
 
 #blocksPanel{
-    border: 2px solid white;
+    background-color: hsl(0, 0%, 50%);
     width: 45vh;
     height: 100vh;
+    box-shadow: 1vh 0 2vh hsla(0, 0%, 0%, 0.548);
+    position: relative;
 }
 
 #blockSpace{
-    border: 2px solid white;
+    background-color: hsl(0, 0%, 75%);
     flex: 1;
     height: 100vh;
 }
 
 #lightDisplayContainer{
-    border: 2px solid white;
     width: 35vw;
     height: 100vh;
     flex-shrink: 0;
+}
+
+#setColorBlock{
+    background-color: hsl(0, 87%, 68%);
+    padding: 1vh;
+    font-size: 2.5vh;
+    border-radius: 2vh;
+    display: inline-block;
+    margin-top: 4vh;
+    margin-left: 5vh;
+    font-family: monospace;
+    transition: background-color 0.25s;
+}
+
+#setColorBlock:hover{
+    background-color: hsl(0, 87%, 55%);
+    cursor: pointer;
+}
+
+#setColorBlock input{
+    width: 3vh;
+}
+
+#setColorBlock #colorInput{
+    width: 6vh;
 }
