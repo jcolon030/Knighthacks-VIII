@@ -11,6 +11,8 @@ body{
     background-color: var(--bgColor);
     font-family: Helvetica;
     margin: 0;
+    background-image: url("../images/abstract.jpg");
+    background-;
 }
 
 #welcome{
@@ -81,14 +83,14 @@ body{
 
 .base-text {
     color: white;
-    font-size: 6rem;
-    margin-left: 2vh;
+    font-size: 9rem;
+    padding-left: 10vh;
 }
 
 .base-subtext {
     color: white;
-    font-size: 2rem;
-    margin-left: 2vh;
+    font-size: 2.5rem;
+    padding-left: 10vh;
 }
 
 .glowing-subtext {
