@@ -1,50 +1,81 @@
-blocks = []
+let blocks = [];
+let variables = {}; // Store int variables
 
+// ======================
+// Helper Functions
+// ======================
 
-// Registry of "block type" -> generator function
-const BLOCK_GENERATORS = {
-  for: ({ lightIDs, color }) => {
-    const { r, g, b } = hexToRgb(color || "#00FF00");
-    return `
-int idx[] = {${lightIDs}};
-for (int i = 0; i < 5; i++) {
-  strip.setPixelColor(idx[i], strip.Color(0, 255, 0));
-}
-strip.show();
-`;
-  },
-
-  delay: ({ ms = 500 }) => `delay(${Number(ms) || 500});`,
-
-  // add more blocks here...
-  // "fade", "blink", "wipe", etc.
-
-  light: ({lightIDs, color}) => {
-    const { r, g, b } = hexToRgb(color || "#00FF00");
-    return `
-int idx[] = {${lightIDs}};
-for (int i = 0; i < 5; i++) {
-  strip.setPixelColor(idx[i], strip.Color(${r}, ${g}, ${b}));
-}
-strip.show();
-`;
-  }
-};
-
-// helper: "#RRGGBB" -> {r,g,b}
-function hexToRgb(hex) {
-  const s = hex.replace('#','');
+// Convert "#RRGGBB" or "(r,g,b)" to {r,g,b}
+function parseColor(input) {
+  if (!input) return { r: 0, g: 255, b: 0 };
+  const rgbMatch = input.match(/\(?\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)?/);
+  if (rgbMatch) return { r: +rgbMatch[1], g: +rgbMatch[2], b: +rgbMatch[3] };
+  const s = input.replace('#', '');
   const n = parseInt(s, 16);
   return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
 }
 
-// CodeBlock Class that describes a block
+// Convert brightness strings like "50%" or variable names to 0–255 scale
+function parseBrightness(value) {
+  if (!value) return 255;
+  if (variables[value] !== undefined) value = variables[value];
+  const match = value.toString().match(/(\d+)/);
+  const num = match ? Number(match[1]) : 100;
+  return Math.round((num / 100) * 255);
+}
+
+// Resolve value: if a variable name, return variable; else return literal
+function resolveValue(val) {
+  if (variables[val] !== undefined) return variables[val];
+  return val;
+}
+
+// ======================
+// Block Generators
+// ======================
+
+const BLOCK_GENERATORS = {
+  light: ({ lightIDs, color }) => {
+    const { r, g, b } = parseColor(color || "#00FF00");
+    return `
+int idx[] = {${lightIDs}};
+for (int i = 0; i < ${lightIDs.length}; i++) {
+  strip.setPixelColor(idx[i], strip.Color(${r}, ${g}, ${b}));
+}
+strip.show();
+`.trim();
+  },
+
+  turnOff: ({ lightIDs }) => `
+int idx[] = {${lightIDs}};
+for (int i = 0; i < ${lightIDs.length}; i++) {
+  strip.setPixelColor(idx[i], strip.Color(0, 0, 0));
+}
+strip.show();
+`.trim(),
+
+  setBrightness: ({ brightness }) => `
+strip.setBrightness(${parseBrightness(brightness)});
+strip.show();
+`.trim(),
+
+  delay: ({ ms = 500 }) => `delay(${resolveValue(ms) || 500});`,
+
+  setVar: ({ varName, value }) => `${varName} = ${resolveValue(value)};`,
+
+  incVar: ({ varName, value }) => `${varName} += ${resolveValue(value)};`,
+};
+
+// ======================
+// CodeBlock Class
+// ======================
+
 class CodeBlock {
   constructor(type, lightIDs = [], color = "#00FF00", extra = {}) {
     this.type = type;
     this.lightIDs = lightIDs;
     this.color = color;
-    this.extra = extra; // room for other params (e.g., ms for delay)
+    this.extra = extra; // brightness, ms, varName, value, etc.
   }
 
   toCode() {
@@ -59,7 +90,10 @@ class CodeBlock {
   }
 }
 
-// Builds Arduino Files using CodeBlocks Objects
+// ======================
+// Build Arduino Sketch
+// ======================
+
 function buildArduinoSketch(blocks) {
   const includes = `#include <Adafruit_NeoPixel.h>
 
@@ -75,7 +109,6 @@ void setup() {
 }
 `;
 
-  // put all generated snippets into loop in order
   const loopBody = blocks.map(b => b.toCode()).join('\n\n');
 
   const loop = `
@@ -93,83 +126,218 @@ function indent(text, spaces = 2) {
   return text.split('\n').map(l => (l ? pad + l : l)).join('\n');
 }
 
-// Downloads the Arduino File to the user computer (Needs to be switched so that the file goes to queue)
+// ======================
+// Download
+// ======================
+
 function downloadTextFile(filename, text, mime = 'text/plain') {
-  // Creates a file like object that store written code
   const blob = new Blob([text], { type: mime });
   const url = URL.createObjectURL(blob);
-  const a = Object.assign(document.createElement('a'), {
-    href: url,
-    download: filename
-  });
+  const a = Object.assign(document.createElement('a'), { href: url, download: filename });
   document.body.appendChild(a);
   a.click();
   a.remove();
   URL.revokeObjectURL(url);
 }
 
-// We accepts all CodeBlocks into an Array and make it global for onExport() to see
-`
-const blocks = [
-  new CodeBlock('for', [0,1,2,3,4], '#00FF00'),
-  new CodeBlock('delay', [], '#000000', { ms: 300 }),
-  new CodeBlock('for', [10,11,12], '#FF00FF'),
-];
-`
-// When user clicks "Export"
-async function onExport() {
-  
-  const sketch = buildArduinoSketch(blocks);
-  // Arduino IDE likes .ino files
-  const filename = `LiveSketch_${new Date().toISOString().replace(/[:.]/g, "-")}.ino`;
-  downloadTextFile(filename, sketch, "text/plain");
+// ======================
+// Variables
+// ======================
+
+function createVariable() {
+  const nameInput = document.getElementById('newVarName');
+  const name = nameInput.value.trim();
+  if (!name) return alert("Enter a variable name");
+  if (variables[name] !== undefined) return alert("Variable already exists");
+  variables[name] = 0;
+  renderVariables();
+  nameInput.value = '';
 }
 
-let blockSpace = document.getElementById("blockSpace");
-let textInputs;
+function renderVariables() {
+  const list = document.getElementById('variablesList');
+  list.innerHTML = '';
+  Object.keys(variables).forEach(name => {
+    const li = document.createElement('li');
+    li.textContent = `${name} = ${variables[name]}`;
+    list.appendChild(li);
+  });
+}
 
-//add a new copy of the setColor block to the blockSpace div
-//theres a bunch of inline CSS going on here and weird positioning to make them line up vertically
-//the console will throw a bunch of errors because of all of these spans having the same IDs, I think that can be fixed by just changing the ID to a class but it works so i haven't gotten around to changing it
+// ======================
+// UI Block Functions
+// ======================
+
+let blockSpace = document.getElementById("blockSpace");
+
 function setColorBlockClicked() {
   blockSpace.innerHTML += `
-    <span class="setColorBlock" style="margin-left:20vh;margin-top:0;margin-bottom:1vh;">
+    <span class="setColorBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
       light <input type="text" class="setColorBlockPinNum" placeholder="ID">
-      set color <input type="text" class="setColorBlockColorInput" placeholder="COLOR" style="width: 15vh;">
+      set color <input type="text" class="setColorBlockColorInput" placeholder="(r,g,b)" style="width: 15vh;">
     </span>`;
 }
 
 function turnOffBlockClicked() {
   blockSpace.innerHTML += `
-    <span class="turnOffBlock" style="margin-left:20vh;margin-right:10vh;margin-top:0;margin-bottom:1vh;">
+    <span class="turnOffBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
       turn off light <input class="turnOffBlockPinNum" type="text" placeholder="ID">
     </span>`;
 }
 
-function setBrightnessBlockClicked(){
-  blockSpace.innerHTML += '<span class="setBrightnessBlock" style="margin-left:20vh;margin-top:0;margin-bottom:1vh;">light <input class="setBrightnessBlockPinNum" type="text" placeholder="ID"> setBrightness <input class="setBrightnessBlockBrightnessInput" type="text" placeholder="%"></span>';
+function setBrightnessBlockClicked() {
+  blockSpace.innerHTML += `
+    <span class="setBrightnessBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
+      light <input class="setBrightnessBlockPinNum" type="text" placeholder="ID">
+      setBrightness <input class="setBrightnessBlockBrightnessInput" type="text" placeholder="%">
+    </span>`;
 }
 
-function clearButton(){
-  blockSpace.innerHTML = '<button id="execute" onclick="executeScript()">Execute</button>';
+function delayBlockClicked() {
+  blockSpace.innerHTML += `
+    <span class="delayBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
+      wait <input type="text" class="delayBlockTime" placeholder="ms">
+    </span>`;
 }
 
-function executeScript(){
-  console.log(`Executing blocks`);
-  textInputs = document.querySelectorAll('input[type="text"]');
-  values = [];
-  value_counter = 0;
-  block_counter = 0;
-  textInputs.forEach(input => {
-    console.log(input.value);
-    if (input.value != "") {
-      values[value_counter] = input.value;
-      value_counter++
-    }
-    console.log(values[0]);
-    blocks[block_counter] = new CodeBlock("light", values[0], values[1]);
-    block_counter++
+function setVarBlockClicked() {
+  blockSpace.innerHTML += `
+    <span class="setVarBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
+      set <select class="varSelect"></select> = <input class="varValueInput" placeholder="value">
+    </span>`;
+  blockSpace.querySelectorAll('.setVarBlock select').forEach(populateVarSelect);
+}
+
+function incVarBlockClicked() {
+  blockSpace.innerHTML += `
+    <span class="incVarBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
+      increment <select class="varSelect"></select> by <input class="varValueInput" placeholder="value">
+    </span>`;
+  blockSpace.querySelectorAll('.incVarBlock select').forEach(populateVarSelect);
+}
+
+function populateVarSelect(select) {
+  select.innerHTML = '';
+  Object.keys(variables).forEach(varName => {
+    const option = document.createElement('option');
+    option.value = varName;
+    option.textContent = varName;
+    select.appendChild(option);
   });
-  console.log(values);
-  onExport()
+}
+
+// ======================
+// Execute Script
+// ======================
+
+function executeScript() {
+  console.log("Executing blocks...");
+  blocks = []; // reset
+
+  const blockElements = blockSpace.querySelectorAll(
+    ".setColorBlock, .turnOffBlock, .setBrightnessBlock, .delayBlock, .setVarBlock, .incVarBlock"
+  );
+
+  blockElements.forEach(el => {
+    if (el.classList.contains("setColorBlock")) {
+      const pin = el.querySelector(".setColorBlockPinNum").value;
+      const color = el.querySelector(".setColorBlockColorInput").value;
+      if (pin && color) blocks.push(new CodeBlock("light", [pin], color));
+    }
+    else if (el.classList.contains("turnOffBlock")) {
+      const pin = el.querySelector(".turnOffBlockPinNum").value;
+      if (pin) blocks.push(new CodeBlock("turnOff", [pin], "#000000"));
+    }
+    else if (el.classList.contains("setBrightnessBlock")) {
+      const pin = el.querySelector(".setBrightnessBlockPinNum").value;
+      const brightness = el.querySelector(".setBrightnessBlockBrightnessInput").value;
+      if (pin && brightness) blocks.push(new CodeBlock("setBrightness", [pin], "#FFFFFF", { brightness }));
+    }
+    else if (el.classList.contains("delayBlock")) {
+      const ms = el.querySelector(".delayBlockTime").value;
+      if (ms) blocks.push(new CodeBlock("delay", [], "#000000", { ms }));
+    }
+    else if (el.classList.contains("setVarBlock")) {
+      const varName = el.querySelector('.varSelect').value;
+      const value = el.querySelector('.varValueInput').value;
+      if (varName && value) blocks.push(new CodeBlock("setVar", [], "#FFFFFF", { varName, value }));
+    }
+    else if (el.classList.contains("incVarBlock")) {
+      const varName = el.querySelector('.varSelect').value;
+      const value = el.querySelector('.varValueInput').value;
+      if (varName && value) blocks.push(new CodeBlock("incVar", [], "#FFFFFF", { varName, value }));
+    }
+  });
+
+  console.log("Blocks to export:", blocks);
+  onExport();
+}
+
+// ======================
+// Export
+// ======================
+
+async function onExport() {
+  const sketch = buildArduinoSketch(blocks);
+  const filename = `LiveSketch_${new Date().toISOString().replace(/[:.]/g, "-")}.ino`;
+  downloadTextFile(filename, sketch, "text/plain");
+}
+
+// ======================
+// Drag and Drop
+// ======================
+
+const paletteBlocks = document.querySelectorAll('#blocksPanel span');
+
+paletteBlocks.forEach(block => {
+  block.addEventListener('dragstart', e => {
+    e.dataTransfer.setData('text/plain', block.className);
+  });
+});
+
+blockSpace.addEventListener('dragover', e => e.preventDefault());
+
+blockSpace.addEventListener('drop', e => {
+  e.preventDefault();
+  const className = e.dataTransfer.getData('text/plain');
+  let newBlock = document.createElement('span');
+  newBlock.className = className + ' draggableBlock';
+  newBlock.style.display = 'block';
+  newBlock.style.marginLeft = '1vh';
+  newBlock.style.marginBottom = '1vh';
+  newBlock.style.marginTop = '0';
+  newBlock.setAttribute('draggable', true);
+
+  // Add inputs depending on type
+  if (className.includes('setColorBlock')) {
+    newBlock.innerHTML = 'light <input type="text" class="setColorBlockPinNum" placeholder="ID"> set color <input type="text" class="setColorBlockColorInput" placeholder="(r,g,b)" style="width:15vh;">';
+  }
+  else if (className.includes('turnOffBlock')) {
+    newBlock.innerHTML = 'turn off light <input type="text" class="turnOffBlockPinNum" placeholder="ID">';
+    newBlock.style.width = '30vh';
+  }
+  else if (className.includes('setBrightnessBlock')) {
+    newBlock.innerHTML = 'light <input type="text" class="setBrightnessBlockPinNum" placeholder="ID"> setBrightness <input type="text" class="setBrightnessBlockBrightnessInput" placeholder="%">';
+    newBlock.style.width = '50vh';
+  }
+  else if (className.includes('delayBlock')) {
+    newBlock.innerHTML = 'wait <input type="text" class="delayBlockTime" placeholder="ms">';
+    newBlock.style.width = '15vh';
+  }
+  else if (className.includes('setVarBlock') || className.includes('incVarBlock')) {
+    newBlock.innerHTML = className.includes('setVarBlock') 
+      ? 'set <select class="varSelect"></select> = <input class="varValueInput" placeholder="value">'
+      : 'increment <select class="varSelect"></select> by <input class="varValueInput" placeholder="value">';
+    newBlock.querySelectorAll('.varSelect').forEach(populateVarSelect);
+  }
+
+  blockSpace.appendChild(newBlock);
+});
+
+document.getElementById('createVarBtn').addEventListener('click', createVariable);
+
+function clearButton() {
+    const blockSpace = document.getElementById('blockSpace');
+    blockSpace.innerHTML = '<button id="execute" onclick="executeScript()">Execute</button>';
+    blocks = [];
 }

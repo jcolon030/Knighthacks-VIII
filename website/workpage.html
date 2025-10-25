@@ -1,59 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>LightHacks Workspace</title>
-        <!-- <link rel="stylesheet" href="styles.css"> -->
-        <link rel="stylesheet" href="stylesclean.css">
-        <link rel="icon" type="image/x-icon" href="..\images\faviconsmall.png">
-    </head>
-    <body id="workspacepage">
-        <nav id="navbar"></nav>
-        <header style="background-color: hsla(217, 100%, 7%, 0.89);">
-            <div class="left">
-                <img src="..\images\favicon.png" id="logo">
-                <h3>Light Hacks</h3>
-            </div>
-            <div class="right">
-                <h4>Projects</h4>
-                <h4>Ideas</h4>
-                <h4>Profile</h4>
-            </div>
-        </header>
-        <nav id="navbarwhite"></nav>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LightHacks Workspace</title>
+    <link rel="stylesheet" href="stylesclean.css">
+    <link rel="icon" type="image/x-icon" href="../images/faviconsmall.png">
+</head>
+<body id="workspacepage">
+    <nav id="navbar"></nav>
+    <header style="background-color: hsla(217, 100%, 7%, 0.89);">
+        <div class="left">
+            <img src="../images/favicon.png" id="logo">
+            <h3>Light Hacks</h3>
+        </div>
+        <div class="right">
+            <h4>Projects</h4>
+            <h4>Ideas</h4>
+            <h4>Profile</h4>
+        </div>
+    </header>
+    <nav id="navbarwhite"></nav>
 
-        <div id="flexcontainer">
-            <div id="blocksPanel">
-                <!--using javascript, this span is copied and added to the innterHTML of the blockSpace div-->
-                <span class="setColorBlock" onclick="setColorBlockClicked()">
-                light <input class="setColorBlockPinNum">
-                setColor <input class="setColorBlockColorInput">
-                </span>
+    <div id="flexcontainer">
+        <!-- Left panel: blocks -->
+        <div id="blocksPanel">
+            <span class="setColorBlock" draggable="true">
+                light <input class="setColorBlockPinNum" placeholder="ID">
+                set color <input class="setColorBlockColorInput" placeholder="(r,g,b)">
+            </span>
 
-                <span class="turnOffBlock" onclick="turnOffBlockClicked()">
-                turn off light <input class="turnOffBlockPinNum">
-                </span>
+            <span class="turnOffBlock" draggable="true">
+                turn off light <input class="turnOffBlockPinNum" placeholder="ID">
+            </span>
 
-                <span class="setBrightnessBlock" onclick="setBrightnessBlockClicked()">
-                    light <input class="setBrightnessBlockPinNum">
-                    setBrightness <input class="setBrightnessBlockBrightnessInput">
-                </span>
+            <span class="setBrightnessBlock" draggable="true">
+                light <input class="setBrightnessBlockPinNum" placeholder="ID">
+                setBrightness <input class="setBrightnessBlockBrightnessInput" placeholder="%">
+            </span>
 
-                <button id="tutorialbutton">?</button>
-                <!--Clears blockSpace innerHTML except for the execute button-->
-                <button id="clearButton" onclick="clearButton()">Clear</button>
-            </div>
+            <span class="delayBlock" draggable="true">
+                wait <input class="delayBlockTime" placeholder="ms">
+            </span>
 
-            <div id="blockSpace">
-                <button id="execute" onclick="executeScript()">Execute</button>
-            </div>
+            <!-- Set Variable Block -->
+            <span class="setVarBlock" draggable="true">
+            set <input class="setVarBlockName" placeholder="variable"> = 
+            <input class="setVarBlockValue" placeholder="value">
+            </span>
 
-            <div id="lightDisplayContainer">
-                light display here
-            </div>
+            <!-- Change Variable Block -->
+            <span class="changeVarBlock" draggable="true">
+            change <input class="changeVarBlockName" placeholder="variable"> by 
+            <input class="changeVarBlockValue" placeholder="value">
+            </span>
+
+
+            <button id="tutorialbutton">?</button>
+<!-- Tutorial Popup -->
+                <div id="tutorialPopup">
+                    <div id="tutorialContent">
+                        <div class="tutorialStep active">
+                            <h2>Welcome to Light Hacks!</h2>
+                            <p>This tutorial will show you how to create a light project.</p>
+                        </div>
+
+                        <div class="tutorialStep">
+                            <h2>Step 2</h2>
+                            <p>Click blocks on the left to add commands to your workspace.</p>
+                        </div>
+
+                        <div class="tutorialStep">
+                            <h2>All Done!</h2>
+                            <p>Click Execute to run your project!</p>
+                        </div>
+
+                        <div class="tutorialButtons">
+                            <button id="prevStep">Previous</button>
+                            <button id="nextStep">Next</button>
+                            <button id="closeTutorial">Close</button>
+                        </div>
+                    </div>
+                </div>
+            <button id="clearButton" onclick="clearButton()">Clear</button>
         </div>
 
-        <script src="script.js"></script>
-    </body>
+        <!-- Workspace -->
+        <div id="blockSpace">
+            <button id="execute" onclick="executeScript()">Execute</button>
+        </div>
+
+        <!-- Light display -->
+        <div id="lightDisplayContainer">
+            light display here
+        </div>
+
+        <!-- Variables panel -->
+        <div id="variablesPanel">
+            <h3>Variables</h3>
+            <input id="newVarName" placeholder="Variable name">
+            <button id="createVarBtn">Create Variable</button>
+            <ul id="variablesList"></ul>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script src="script.js"></script>
+<script>
+
+            document.addEventListener("DOMContentLoaded", () => {
+            const openTutorialBtn = document.getElementById("tutorialbutton");
+            const tutorialPopup = document.getElementById("tutorialPopup");
+            const closeTutorialBtn = document.getElementById("closeTutorial");
+            const steps = document.querySelectorAll(".tutorialStep");
+            const nextBtn = document.getElementById("nextStep");
+            const prevBtn = document.getElementById("prevStep");
+
+            let currentStep = 0;
+
+            openTutorialBtn.addEventListener("click", () => {
+            tutorialPopup.style.display = "flex";
+            currentStep = 0;
+            showStep();
+            });
+
+            closeTutorialBtn.addEventListener("click", () => {
+            tutorialPopup.style.display = "none";
+            });
+
+            nextBtn.addEventListener("click", () => {
+            if (currentStep < steps.length - 1) currentStep++;
+            showStep();
+            });
+
+            prevBtn.addEventListener("click", () => {
+            if (currentStep > 0) currentStep--;
+            showStep();
+            });
+
+            tutorialPopup.addEventListener("click", (e) => {
+            if (e.target === tutorialPopup) tutorialPopup.style.display = "none";
+            });
+
+            function showStep() {
+            steps.forEach((step, i) => {
+                step.style.display = i === currentStep ? "block" : "none";
+            });
+            prevBtn.style.display = currentStep === 0 ? "none" : "inline-block";
+            nextBtn.style.display = currentStep === steps.length - 1 ? "none" : "inline-block";
+            closeTutorialBtn.style.display = currentStep === steps.length - 1 ? "inline-block" : "none";
+        }
+  });
+        </script>
+</body>
 </html>
