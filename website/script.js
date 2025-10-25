@@ -120,3 +120,24 @@ async function onExport() {
   const data = await res.json();
   console.log("Server response:", data);
 }
+
+
+
+let blockSpace = document.getElementById("blockSpace");
+let textInputs;
+
+function setColorBlockClicked(){
+  blockSpace.innerHTML += '<span id="setColorBlock" style="margin-left:20vh;margin-top:0;margin-bottom:1vh;">light <input type="text" id="setColorBlockPinNum" placeholder="ID"> set color <input type="text" id="setColorBlockColorInput" placeholder="COLOR" style="width: 15vh;"></span>';
+}
+
+function clearButton(){
+  blockSpace.innerHTML = '<button id="execute" onclick="executeScript()">Execute</button>';
+}
+
+function executeScript(){
+  console.log(`Executing blocks`);
+  textInputs = document.querySelectorAll('input[type="text"]');
+  textInputs.forEach(input => {
+    console.log(input.value);
+  });
+}
