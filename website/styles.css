@@ -1,3 +1,5 @@
+ @import url(https://db.onlinewebfonts.com/c/83e4a6b639612cd501853be5a7cf97ab?family=Trend+Sans+One+Regular);
+
 :root{
     --bgColor: #000814;
     --darkBlue: #001D3D;
@@ -12,7 +14,8 @@ body{
     font-family: Helvetica;
     margin: 0;
     background-image: url("../images/abstract.jpg");
-    background-;
+    background-color: rgba(0, 0, 0, 0.3);
+    background-blend-mode: multiply;
 }
 
 #welcome{
@@ -29,15 +32,16 @@ body{
     color: white;
     padding-top: 2rem;
     padding-left: 1rem;
-    font-size: 3rem;
+    font-size: clamp(1.25rem, 2.5vw, 4rem);
+    font-family: "Trend Sans One Regular";
 }
 
 .navLinks {
     color: white;
     text-decoration: none;
     padding: 0.5rem;
-    font-size: 1.4rem;
-
+    font-size: clamp(1rem, 1.2vw + 0.25rem, 2.25rem);
+    font-family: "Trend Sans One Regular";
 }
 
 .navLinks:hover {
@@ -83,14 +87,16 @@ body{
 
 .base-text {
     color: white;
-    font-size: 9rem;
+    font-size: clamp(1.75rem, 6.5vw + 0.5rem, 10rem);
     padding-left: 10vh;
+    font-family: "Trend Sans One Regular";
 }
 
 .base-subtext {
     color: white;
-    font-size: 2.5rem;
+    font-size: clamp(1.125rem, 3vw + 0.25rem, 3rem);
     padding-left: 10vh;
+    font-family: "Trend Sans One Regular";
 }
 
 .glowing-subtext {
