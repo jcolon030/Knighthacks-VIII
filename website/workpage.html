@@ -4,7 +4,8 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>LightHacks Workspace</title>
-        <link rel="stylesheet" href="styles.css">
+        <!-- <link rel="stylesheet" href="styles.css"> -->
+        <link rel="stylesheet" href="stylesclean.css">
         <link rel="icon" type="image/x-icon" href="..\images\faviconsmall.png">
     </head>
     <body id="workspacepage">
@@ -25,9 +26,50 @@
         <div id="flexcontainer">
             <div id="blocksPanel">
                 <!--using javascript, this span is copied and added to the innterHTML of the blockSpace div-->
-                <span id="setColorBlock" onclick="setColorBlockClicked()">
-                    light <input type="text" id="setColorBlockPinNum"> set color <input type="text" id="setColorBlockColorInput">
+                <span class="setColorBlock" onclick="setColorBlockClicked()">
+                light <input class="setColorBlockPinNum">
+                setColor <input class="setColorBlockColorInput">
                 </span>
+
+                <span class="turnOffBlock" onclick="turnOffBlockClicked()">
+                turn off light <input class="turnOffBlockPinNum">
+                </span>
+
+                <span class="setBrightnessBlock" onclick="setBrightnessBlockClicked()">
+                    light <input class="setBrightnessBlockPinNum">
+                    setBrightness <input class="setBrightnessBlockBrightnessInput">
+                </span>
+
+                <span class="delayBlock" onclick="delayBlockClicked()">
+                wait <input class="delayBlockTime" placeholder="ms">
+                </span>
+
+                <button id="tutorialbutton">?</button>
+                <!-- Tutorial Popup -->
+                <div id="tutorialPopup">
+                    <div id="tutorialContent">
+                        <div class="tutorialStep active">
+                            <h2>Welcome to Light Hacks!</h2>
+                            <p>This tutorial will show you how to create a light project.</p>
+                        </div>
+
+                        <div class="tutorialStep">
+                            <h2>Step 2</h2>
+                            <p>Click blocks on the left to add commands to your workspace.</p>
+                        </div>
+
+                        <div class="tutorialStep">
+                            <h2>All Done!</h2>
+                            <p>Click Execute to run your project!</p>
+                        </div>
+
+                        <div class="tutorialButtons">
+                            <button id="prevStep">Previous</button>
+                            <button id="nextStep">Next</button>
+                            <button id="closeTutorial">Close</button>
+                        </div>
+                    </div>
+                </div>
                 <!--Clears blockSpace innerHTML except for the execute button-->
                 <button id="clearButton" onclick="clearButton()">Clear</button>
             </div>
@@ -42,5 +84,52 @@
         </div>
 
         <script src="script.js"></script>
+        <script>
+
+            document.addEventListener("DOMContentLoaded", () => {
+            const openTutorialBtn = document.getElementById("tutorialbutton");
+            const tutorialPopup = document.getElementById("tutorialPopup");
+            const closeTutorialBtn = document.getElementById("closeTutorial");
+            const steps = document.querySelectorAll(".tutorialStep");
+            const nextBtn = document.getElementById("nextStep");
+            const prevBtn = document.getElementById("prevStep");
+
+            let currentStep = 0;
+
+            openTutorialBtn.addEventListener("click", () => {
+            tutorialPopup.style.display = "flex";
+            currentStep = 0;
+            showStep();
+            });
+
+            closeTutorialBtn.addEventListener("click", () => {
+            tutorialPopup.style.display = "none";
+            });
+
+            nextBtn.addEventListener("click", () => {
+            if (currentStep < steps.length - 1) currentStep++;
+            showStep();
+            });
+
+            prevBtn.addEventListener("click", () => {
+            if (currentStep > 0) currentStep--;
+            showStep();
+            });
+
+            tutorialPopup.addEventListener("click", (e) => {
+            if (e.target === tutorialPopup) tutorialPopup.style.display = "none";
+            });
+
+            function showStep() {
+            steps.forEach((step, i) => {
+                step.style.display = i === currentStep ? "block" : "none";
+            });
+            prevBtn.style.display = currentStep === 0 ? "none" : "inline-block";
+            nextBtn.style.display = currentStep === steps.length - 1 ? "none" : "inline-block";
+            closeTutorialBtn.style.display = currentStep === steps.length - 1 ? "inline-block" : "none";
+        }
+  });
+        </script>
+
     </body>
 </html>

@@ -1,0 +1,367 @@
+@import url(https://db.onlinewebfonts.com/c/83e4a6b639612cd501853be5a7cf97ab?family=Trend+Sans+One+Regular);
+
+:root {
+  --bgColor: hsl(216, 100%, 7%);
+  --darkBlue: #001d3d;
+  --lighterBlue: #003566;
+  --darkerYellow: #ffc300;
+  --lighterYellow: #ffd60a;
+  --navColor: #000204;
+}
+
+/* =========================
+   Homepage & Layout Styles
+   ========================= */
+
+#homepage {
+  margin: 0;
+  font-family: "Trend Sans One Regular";
+  background-color: hsla(217, 100%, 7%, 0.89);
+  background-image: url("../images/bg.jpeg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
+  background-size: cover;
+  background-blend-mode: multiply;
+}
+
+#workspacepage {
+  margin: 0;
+  font-family: "Trend Sans One Regular";
+}
+
+#flexcontainer {
+  display: flex;
+  flex-direction: row;
+  margin: 0;
+  font-family: "Trend Sans One Regular";
+  background-color: hsla(217, 100%, 7%, 0.89);
+}
+
+/* =========================
+   Hero Text
+   ========================= */
+
+#lightUp {
+  margin: 10px;
+  margin-top: 15vh;
+  margin-left: 12vh;
+  color: white;
+  font-size: 12vh;
+  text-shadow: 0 0 1.5vh white;
+}
+
+#slogan {
+  margin: 2vh;
+  margin-left: 14vh;
+  color: #ff4ff3;
+  font-size: 3.5vh;
+  text-shadow: 0 0 0.5vh #ff4ff3;
+}
+
+/* =========================
+   Navbar
+   ========================= */
+
+#navbar {
+  height: 2vh;
+  margin: 0;
+  padding: 1vh;
+  background: linear-gradient(to right, #bafb02, #e6ff80);
+}
+
+#navbarwhite {
+  height: 1vh;
+  margin: 0;
+  background-color: white;
+}
+
+/* =========================
+   Buttons & Links
+   ========================= */
+
+.createProject {
+  display: inline-block;
+  margin-top: 8vh;
+  margin-left: 14vh;
+  padding: 2vh 4vh;
+  color: white;
+  font-size: 3vh;
+  text-decoration: none;
+  text-shadow: 0 0 0.8vh white;
+  background-color: hsl(120, 100%, 49%);
+  border-radius: 10vh;
+  transition: background-color 0.25s;
+}
+
+.createProject:hover {
+  background-color: hsl(120, 100%, 35%);
+}
+
+/* =========================
+   Header Layout
+   ========================= */
+
+header {
+  display: flex;
+  justify-content: space-between;
+  color: white;
+  font-size: 3vh;
+  text-shadow: 0 0 0.5vh white;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+}
+
+.right {
+  display: flex;
+  gap: 3vh;
+  margin-right: 3vh;
+}
+
+#title {
+  display: inline;
+}
+
+#logo {
+  width: 8vh;
+  margin: 2vh;
+}
+
+/* =========================
+   Workspace Panels
+   ========================= */
+
+#blocksPanel {
+  position: relative;
+  width: 45vh;
+  height: 100vh;
+  background-color: hsl(0, 0%, 50%);
+  box-shadow: 1vh 0 2vh hsla(0, 0%, 0%, 0.55);
+}
+
+#blockSpace {
+  flex: 1;
+  height: 100vh;
+  background-color: hsl(0, 0%, 75%);
+  overflow-y: auto;
+}
+
+#lightDisplayContainer {
+  flex-shrink: 0;
+  width: 35vw;
+  height: 100vh;
+}
+
+/* =========================
+   Controls & Buttons
+   ========================= */
+.setColorBlock {
+  display: inline-block;
+  margin-top: 5vh;
+  margin-left: 3vh;
+  padding: 1vh;
+  font-size: 2.5vh;
+  font-family: monospace;
+  border-radius: 2vh;
+  background-color: hsl(0, 87%, 68%);
+  transition: background-color 0.25s;
+}
+
+.setColorBlock:hover {
+  background-color: hsl(0, 87%, 55%);
+  cursor: pointer;
+}
+
+.setColorBlock input {
+  width: 3vh;
+}
+
+.setColorBlock .setColorBlockColorInput {
+  width: 6vh;
+}
+
+.turnOffBlock {
+  display: inline-block;
+  margin-top: 5vh;
+  margin-left: 3vh;
+  padding: 1vh;
+  font-size: 2.5vh;
+  font-family: monospace;
+  border-radius: 2vh;
+  background-color: hsl(240, 57%, 73%);
+  transition: background-color 0.25s;
+}
+
+.turnOffBlock:hover {
+  background-color: hsl(240, 57%, 60%);
+  cursor: pointer;
+}
+
+.turnOffBlock input {
+  width: 3vh;
+}
+
+.setBrightnessBlock{
+    display: inline-block;
+    margin-top: 5vh;
+    margin-left: 3vh;
+    padding: 1vh;
+    font-size: 2.5vh;
+    font-family: monospace;
+    border-radius: 2vh;
+    background-color: hsl(120, 65%, 55%);
+    transition: background-color 0.25s;
+}
+
+.setBrightnessBlock:hover{
+    background-color: hsl(120, 65%, 40%);
+    cursor:pointer;
+}
+
+.setBrightnessBlock input{
+    width: 3vh;
+}
+
+.delayBlock {
+  display: inline-block;
+  margin-top: 5vh;
+  margin-left: 3vh;
+  padding: 1vh;
+  font-size: 2.5vh;
+  font-family: monospace;
+  border-radius: 2vh;
+  background-color: hsl(45, 90%, 60%);
+  transition: background-color 0.25s;
+}
+
+.delayBlock:hover {
+  background-color: hsl(45, 90%, 50%);
+  cursor: pointer;
+}
+
+.delayBlock input {
+  width: 6vh;
+}
+
+
+#clearButton,
+#execute {
+  border: none;
+  border-radius: 1vh;
+  transition: background-color 0.25s;
+  box-shadow: 0.3vh 0.3vh 0.5vh hsla(0, 0%, 0%, 0.518);
+  font-family: "Trend Sans One Regular";
+  font-size:1.5vh;
+}
+
+#tutorialbutton{
+    position: absolute;
+    top: 0.7vh;
+    right: 12.5vh;
+    border: none;
+    border-radius: 100%;
+    box-shadow: 0.3vh 0.3vh 0.5vh hsla(0, 0%, 0%, 0.518);
+}
+
+#clearButton {
+  position: absolute;
+  top: 0.9vh;
+  right: 4vh;
+}
+
+#clearButton:hover,
+#execute:hover,
+#tutorialbutton:hover {
+  background-color: hsl(0, 0%, 67%);
+  cursor:pointer;
+}
+
+#execute {
+  margin-left: 85%;
+}
+
+/* Popup Overlay */
+#tutorialPopup {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background-color: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(5px);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    font-family: "Trend Sans One Regular";
+}
+
+/* Main Box */
+#tutorialContent {
+    background-color: #0b131e;
+    border: 2px solid #ff4ff3;
+    border-radius: 2vh;
+    color: rgb(255, 255, 255);
+    width: 60vw;
+    max-width: 800px;
+    padding: 5vh;
+    box-shadow: 0px 0px 25px #ff4ff3;
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* Steps */
+.tutorialStep {
+    display: none;
+    animation: stepFade 0.4s ease-out;
+}
+
+.tutorialStep.active {
+    display: block;
+}
+
+.tutorialStep h2 {
+    color: rgb(255, 255, 255);
+    text-shadow: 0 0 10px white;
+    font-size: 5vh;
+    margin-bottom: 2vh;
+}
+
+.tutorialStep p {
+    font-size: 2.5vh;
+    line-height: 1.6;
+}
+
+/* Buttons */
+.tutorialButtons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4vh;
+}
+
+#prevStep, #nextStep, #closeTutorial {
+    background-color: white;
+    border: none;
+    border-radius: 1vh;
+    padding: 1.5vh 4vh;
+    color: black;
+    font-size: 2.5vh;
+    font-weight: bold;
+    text-shadow: 0 0 5px white;
+    cursor: pointer;
+    transition: background-color 0.25s, transform 0.2s;
+}
+
+#prevStep:hover, #nextStep:hover, #closeTutorial:hover {
+    background-color: white;
+    transform: scale(1.05);
+}
+
+#tutorialbutton:hover {
+  background-color: #ff29cc;
+  transform: scale(1.05);
+}
+
+#closeTutorial {
+    display: none;
+}
