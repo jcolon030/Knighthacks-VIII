@@ -224,6 +224,27 @@ header {
     width: 3vh;
 }
 
+.delayBlock {
+  display: inline-block;
+  margin-top: 5vh;
+  margin-left: 3vh;
+  padding: 1vh;
+  font-size: 2.5vh;
+  font-family: monospace;
+  border-radius: 2vh;
+  background-color: hsl(45, 90%, 60%);
+  transition: background-color 0.25s;
+}
+
+.delayBlock:hover {
+  background-color: hsl(45, 90%, 50%);
+  cursor: pointer;
+}
+
+.delayBlock input {
+  width: 6vh;
+}
+
 
 #clearButton,
 #execute {
@@ -259,4 +280,87 @@ header {
 
 #execute {
   margin-left: 85%;
+}
+
+/* Popup Overlay */
+#tutorialPopup {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background-color: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(5px);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    font-family: "Trend Sans One Regular";
+}
+
+/* Main Box */
+#tutorialContent {
+    background-color: #0b131e;
+    border: 2px solid #ff4ff3;
+    border-radius: 2vh;
+    color: rgb(255, 255, 255);
+    width: 60vw;
+    max-width: 800px;
+    padding: 5vh;
+    box-shadow: 0px 0px 25px #ff4ff3;
+    animation: fadeIn 0.4s ease-out;
+}
+
+/* Steps */
+.tutorialStep {
+    display: none;
+    animation: stepFade 0.4s ease-out;
+}
+
+.tutorialStep.active {
+    display: block;
+}
+
+.tutorialStep h2 {
+    color: rgb(255, 255, 255);
+    text-shadow: 0 0 10px white;
+    font-size: 5vh;
+    margin-bottom: 2vh;
+}
+
+.tutorialStep p {
+    font-size: 2.5vh;
+    line-height: 1.6;
+}
+
+/* Buttons */
+.tutorialButtons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 4vh;
+}
+
+#prevStep, #nextStep, #closeTutorial {
+    background-color: white;
+    border: none;
+    border-radius: 1vh;
+    padding: 1.5vh 4vh;
+    color: black;
+    font-size: 2.5vh;
+    font-weight: bold;
+    text-shadow: 0 0 5px white;
+    cursor: pointer;
+    transition: background-color 0.25s, transform 0.2s;
+}
+
+#prevStep:hover, #nextStep:hover, #closeTutorial:hover {
+    background-color: white;
+    transform: scale(1.05);
+}
+
+#tutorialbutton:hover {
+  background-color: #ff29cc;
+  transform: scale(1.05);
+}
+
+#closeTutorial {
+    display: none;
 }
