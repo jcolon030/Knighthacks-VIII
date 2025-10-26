@@ -385,3 +385,59 @@ blockSpace.addEventListener('dragover', e => {
 blockSpace.addEventListener('drop', e => {
   draggedBlock = null;
 });
+
+
+
+//LIGHT DISPLAY
+
+const NUM_LEDS = 50; // number of LEDs to display in preview
+let ledStates = new Array(NUM_LEDS).fill({ r: 0, g: 0, b: 0 }); // track LED colors
+
+function initLightDisplay() {
+  const container = document.getElementById("lightDisplayContainer");
+  container.innerHTML = "";
+  for (let i = 0; i < NUM_LEDS; i++) {
+    const led = document.createElement("div");
+    led.className = "led";
+    led.dataset.id = i;
+    container.appendChild(led);
+  }
+}
+
+function updateLightDisplay() {
+  const container = document.getElementById("lightDisplayContainer");
+  container.querySelectorAll(".led").forEach((led, i) => {
+    const { r, g, b } = ledStates[i];
+    led.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+  });
+}
+
+// update ledStates based on blocks
+function simulateBlocks() {
+  ledStates = new Array(NUM_LEDS).fill({ r: 0, g: 0, b: 0 }); // reset
+
+  blocks.forEach(block => {
+    if (block.type === "light") {
+      block.lightIDs.forEach(id => {
+        const idx = resolveValue(id);
+        if (idx >= 0 && idx < NUM_LEDS) {
+          ledStates[idx] = parseColor(block.color);
+        }
+      });
+    } else if (block.type === "turnOff") {
+      block.lightIDs.forEach(id => {
+        const idx = resolveValue(id);
+        if (idx >= 0 && idx < NUM_LEDS) {
+          ledStates[idx] = { r: 0, g: 0, b: 0 };
+        }
+      });
+    }
+  });
+
+  updateLightDisplay();
+}
+
+// call init on page load
+window.addEventListener("load", () => {
+  initLightDisplay();
+});

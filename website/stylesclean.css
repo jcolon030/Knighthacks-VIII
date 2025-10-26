@@ -371,3 +371,27 @@ header {
 #closeTutorial {
     display: none;
 }
+
+/* Light display */
+
+#lightDisplayContainer {
+  display: flex;
+  flex-wrap: wrap;
+  border: 1px solid #ccc;
+  gap: 0;
+  justify-content: space-evenly;
+  height: 50vh;
+  width: 60vh;
+}
+
+.led {
+  width: 3vh;
+  height: 3vh;
+  margin-left: 2.3vh;
+  margin-right: 2.3vh;
+  margin-top: 0;
+  margin-bottom: 0;
+  background-color: #000; /* default off */
+  border-radius: 4px;
+  box-shadow: 0 0 2px #333;
+}
