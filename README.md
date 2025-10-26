@@ -70,7 +70,6 @@ Light Hacks enables anyone to design and control custom light displays without n
    - Brightness and timing controls  
 3. Preview in browser first to see how it looks.  
 4. Once satisfied, hit **Deploy** (or equivalent) to send the sequence to your connected hardware.  
-5. Want to reuse a scene? Save it as a preset & load it later.
 
 ---
 
