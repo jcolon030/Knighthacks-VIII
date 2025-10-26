@@ -249,47 +249,57 @@ function executeScript() {
   );
 
   blockElements.forEach(el => {
-    if (el.classList.contains("setColorBlock")) {
-      let pin = el.querySelector(".setColorBlockPinNum").value;
-      let color = el.querySelector(".setColorBlockColorInput").value;
-      if (pin && color) blocks.push(new CodeBlock("light", [pin], color));
+    if (el.classList.contains("setVarBlock")) {
+      const varName = el.querySelector('.varSelect').value;
+      const value = resolveInputToValue(el.querySelector('.varValueInput').value);
+      variables[varName] = Number(value); // ✅ update variable immediately
+      blocks.push(new CodeBlock("setVar", [], "#FFFFFF", { varName, value }));
     }
+
+    else if (el.classList.contains("incVarBlock")) {
+      const varName = el.querySelector('.varSelect').value;
+      const value = resolveInputToValue(el.querySelector('.varValueInput').value);
+      variables[varName] += Number(value); // ✅ increment variable immediately
+      blocks.push(new CodeBlock("incVar", [], "#FFFFFF", { varName, value }));
+    }
+
+    else if (el.classList.contains("changeVarBlock")) {
+      const varName = el.querySelector('.varSelect').value;
+      const value = resolveInputToValue(el.querySelector('.varValueInput').value);
+      variables[varName] += Number(value);
+      blocks.push(new CodeBlock("changeVar", [], "#FFFFFF", { varName, value }));
+    }
+
     else if (el.classList.contains("turnOffBlock")) {
-      let pin = el.querySelector(".turnOffBlockPinNum").value;
-      if(pin in variables){
-        console.log(`${pin} variable was found`);
-      }
-      if (pin) blocks.push(new CodeBlock("turnOff", [pin], "#000000"));
+      let pinInput = el.querySelector(".turnOffBlockPinNum").value.trim();
+      let pin = resolveInputToValue(pinInput);
+      console.log(`${pinInput} variable was found -> value: ${pin}`);
+      // ✅ Don’t skip pin=0, only skip empty input
+      if (pinInput !== "") blocks.push(new CodeBlock("turnOff", [pin], "#000000"));
     }
+
+    else if (el.classList.contains("setColorBlock")) {
+      let pinInput = el.querySelector(".setColorBlockPinNum").value.trim();
+      let color = el.querySelector(".setColorBlockColorInput").value;
+      let pin = resolveInputToValue(pinInput);
+      if (pinInput !== "" && color) blocks.push(new CodeBlock("light", [pin], color));
+    }
+
     else if (el.classList.contains("setBrightnessBlock")) {
-      const pin = el.querySelector(".setBrightnessBlockPinNum").value;
       const brightness = el.querySelector(".setBrightnessBlockBrightnessInput").value;
-      if (pin && brightness) blocks.push(new CodeBlock("setBrightness", [pin], "#FFFFFF", { brightness }));
+      blocks.push(new CodeBlock("setBrightness", [], "#FFFFFF", { brightness }));
     }
+
     else if (el.classList.contains("delayBlock")) {
       const ms = el.querySelector(".delayBlockTime").value;
       if (ms) blocks.push(new CodeBlock("delay", [], "#000000", { ms }));
-    }
-    else if (el.classList.contains("setVarBlock")) {
-      const varName = el.querySelector('.varSelect').value;
-      const value = el.querySelector('.varValueInput').value;
-      if (varName && value) blocks.push(new CodeBlock("setVar", [], "#FFFFFF", { varName, value }));
-    }
-    else if (el.classList.contains("incVarBlock")) {
-      const varName = el.querySelector('.varSelect').value;
-      const value = el.querySelector('.varValueInput').value;
-      if (varName && value) blocks.push(new CodeBlock("incVar", [], "#FFFFFF", { varName, value }));
-    }
-    else if (el.classList.contains("changeVarBlock")) {
-      const varName = el.querySelector('.varSelect').value;
-      const value = el.querySelector('.varValueInput').value;
-      if (varName && value) blocks.push(new CodeBlock("changeVar", [], "#FFFFFF", { varName, value }));
     }
   });
 
   console.log("Blocks to export:", blocks);
   onExport();
 }
+
 
 // ======================
 // Export
@@ -441,3 +451,10 @@ function simulateBlocks() {
 window.addEventListener("load", () => {
   initLightDisplay();
 });
+
+function resolveInputToValue(input) {
+  const trimmed = input.trim();
+  if (trimmed === "") return "";
+  if (variables[trimmed] !== undefined) return variables[trimmed];
+  return Number(trimmed) || trimmed;
+}
