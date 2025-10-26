@@ -16,7 +16,7 @@ Light Hacks enables anyone to design and control custom light displays without n
 ---
 
 ## Live Demo  
-[Our Devpost Page](https://devpost.com/software/lighthacks){:target="_blank"}
+*[Our Devpost Page](https://devpost.com/software/lighthacks)*
 
 ---
 
@@ -65,9 +65,3 @@ Here’s a high-level breakdown:
 - **Backend:** Receives scene JSON, stores it in DB, serves to hardware modules.  
 - **Hardware module (microcontroller):** Polls backend (or listens via WebSocket / HTTP), receives scene JSON, interprets it into LED control code, drives LED strips in real-time.  
 
-
-
-
-
-
-## Demo:
