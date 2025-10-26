@@ -1,7 +1,7 @@
 # Light Hacks  
 *Project by Jay Colon, Lauren Bliss, Nivedita Sujith, and Brady Leifert – Fall 2025*
 
-Light Hacks enables anyone to design and control custom light displays without needing to write code. With an intuitive “code-block” interface, users can shape movements, colours, brightness and patterns for their lights — whether indoors or outdoors.
+Light Hacks enables anyone to design and control custom light displays without needing to write code. With an intuitive “code-block” interface, users can shape movements, colors, brightness and patterns for their lights — whether indoors or outdoors.
 
 ---
 
@@ -16,13 +16,13 @@ Light Hacks enables anyone to design and control custom light displays without n
 ---
 
 ## Live Demo  
-[Our Devpost Page](https://devpost.com/software/lighthacks){:target="_blank"}
+*[Our Devpost Page](https://devpost.com/software/lighthacks)*
 
 ---
 
 ## Features  
 - Visual, drag-and-drop style interface for building light control sequences  
-- Customisable parameters: patterns, colours, transitions, brightness  
+- Customizable parameters: patterns, colors, transitions, brightness  
 - Hardware integration for microcontroller / LED strips (eg. NeoPixels)  
 - Preview mode in browser + real-world output on connected lights  
 - Shareable presets and configurable scenes  
@@ -50,7 +50,7 @@ Light Hacks enables anyone to design and control custom light displays without n
 ## Usage  
 1. In the UI, choose or build a new light sequence.  
 2. Configure properties like:  
-   - Colours (solid, gradient, cycling)  
+   - Colors (solid, gradient, cycling)  
    - Movement / patterns (wipe, chase, sparkle, fade)  
    - Brightness and timing controls  
 3. Preview in browser first to see how it looks.  
@@ -65,9 +65,3 @@ Here’s a high-level breakdown:
 - **Backend:** Receives scene JSON, stores it in DB, serves to hardware modules.  
 - **Hardware module (microcontroller):** Polls backend (or listens via WebSocket / HTTP), receives scene JSON, interprets it into LED control code, drives LED strips in real-time.  
 
-
-
-
-
-
-## Demo:
