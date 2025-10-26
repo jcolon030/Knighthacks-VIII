@@ -31,8 +31,8 @@ void handleLine(const String& ln) {
       if (s<0) s=0; if (e>=NUM_LEDS) e=NUM_LEDS-1;
       if (e >= s) {
         for (int i=s; i<=e; i++) strip.setPixelColor(i, strip.Color(r,g,b));
-        strip.show();
       }
+      strip.show();
       ok();
     } break;
 
@@ -45,7 +45,6 @@ void handleLine(const String& ln) {
 
     case 'Z': { // clear all
       strip.clear();
-      strip.show();
       ok();
     } break;
 
@@ -54,8 +53,8 @@ void handleLine(const String& ln) {
       if (s<0) s=0; if (e>=NUM_LEDS) e=NUM_LEDS-1;
       if (e >= s) {
         for (int i=s; i<=e; i++) strip.setPixelColor(i, 0,0,0);
-        strip.show();
       }
+      strip.show();
       ok();
     } break;
 
@@ -71,6 +70,11 @@ void handleLine(const String& ln) {
       int br = v[0]; if (br<0) br=0; if (br>255) br=255;
       strip.setBrightness(br);
       strip.show();
+      ok();
+    } break;
+
+    case 'R': {
+      rainbow();
       ok();
     } break;
 
@@ -104,4 +108,34 @@ void loop() {
       if (lineBuf.length() < 120) lineBuf += c;
     }
   }
+}
+
+void rainbow() {
+  for (int j = 0; j < 256 * 5; j++) { // 5 rainbows
+    for (int y = 0; y < 10; y++) {
+      for (int x = 0; x < 10; x++) {
+        int pixelIndex = (y * 10) + x; //
+
+        if (y % 2 == 1) { // Odd rows wired reverse
+          pixelIndex = (y * 10) + (10 - 1 - x);
+        }
+        strip.setPixelColor(pixelIndex, Wheel(((pixelIndex * 256 / 100) + j) & 255));
+      }
+    }
+    strip.show();
+    delay(50);
+  }
+}
+
+uint32_t Wheel(byte WheelPos) {
+  WheelPos = 255 - WheelPos;
+  if (WheelPos < 85) {
+    return strip.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+  }
+  if (WheelPos < 170) {
+    WheelPos -= 85;
+    return strip.Color(0, WheelPos * 3, 255 - WheelPos * 3);
+  }
+  WheelPos -= 170;
+  return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
 }
