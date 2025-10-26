@@ -9,8 +9,8 @@ let variables = {}; // Store int variables
 let finalCommands = [];
 
 // app.js
-const SUPABASE_URL = "https://rjcspfjnhadhodecleht.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJqY3NwZmpuaGFkaG9kZWNsZWh0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NDc5MDUsImV4cCI6MjA3NzAyMzkwNX0.YXpOzWNu9wUH6htpXHyAwBaZecqXwFXszmq2ihU1ENw";   // anon/public key
+const SUPABASE_URL = "";
+const SUPABASE_ANON_KEY = "";   // anon/public key
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // enqueue next commands_N for a device
@@ -137,6 +137,14 @@ const BLOCK_GENERATORS = {
   update: () => {
     console.log(`S`);
     return `S`;
+  },
+
+  setAllColors: (color) =>{
+    //
+  },
+
+  turnAllOff: () =>{
+    //
   }
 };
 
@@ -288,7 +296,7 @@ function executeScript() {
   blocks = []; // reset
 
   const blockElements = blockSpace.querySelectorAll(
-    ".setColorBlock, .turnOffBlock, .setBrightnessBlock, .delayBlock, .setVarBlock, .incVarBlock, .changeVarBlock, .updateBlock"
+    ".setColorBlock, .turnOffBlock, .setBrightnessBlock, .delayBlock, .setVarBlock, .incVarBlock, .changeVarBlock, .updateBlock, .setAllColorBlock, .turnOffAllBlock"
   );
 
   blockElements.forEach(el => {
@@ -368,6 +376,18 @@ function executeScript() {
       finalCommands.push(`S`);
       blocks.push(new CodeBlock("update", [], "#000000"));
     }
+
+    else if(el.classList.contains("setAllColorBlock")){
+      let color = el.querySelector(".setAllColorBlockInput").value;
+      let { r, g, b } = parseColor(color || "#00FF00");
+      finalCommands.push(`A, ${r}, ${g}, ${b}`);
+      blocks.push(new CodeBlock("setAllColors", [], color));
+    }
+
+    else if(el.classList.contains("turnOffAllBlock")){
+      finalCommands.push(`Z`);
+      blocks.push(new CodeBlock("turnAllOff", [], "#000000"));
+    }
   });
 
   enqueueProgram("Arduino Nano", finalCommands);
@@ -438,6 +458,14 @@ blockSpace.addEventListener('drop', e => {
   else if (className.includes('updateBlock')) {
     newBlock.innerHTML = 'update';
     newBlock.style.width = '10vh';
+  }
+  else if(className.includes('setAllColorBlock')){
+    newBlock.innerHTML = 'ALL lights color <input class="setAllColorBlockInput" placeholder="(r,g,b)" style="width:15vh;">';
+    newBlock.style.width = '50vh';
+  }
+  else if(className.includes('turnOffAllBlock')){
+    newBlock.innerHTML = 'turn off ALL';
+    newBlock.style.width = '30vh';
   }
 
   blockSpace.appendChild(newBlock);
