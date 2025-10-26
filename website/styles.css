@@ -13,7 +13,7 @@
     background-color: hsla(217, 100%, 7%, 0.89);
     margin: 0;
     font-family: "Trend Sans One Regular";
-    background-image: url("..\\images\\bg.jpeg");
+    background-image: url("./images/bg.jpeg");
     background-repeat: no-repeat;
     background-position: center;
     background-attachment: fixed;
