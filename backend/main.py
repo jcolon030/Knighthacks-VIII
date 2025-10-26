@@ -4,8 +4,10 @@ from supabase import create_client, Client
 # -----------------------------
 # CONFIG
 # -----------------------------
-SUPABASE_URL = ""
-SUPABASE_SERVICE_ROLE = ""
+
+# This code can be used by anyone if you have database logins
+SUPABASE_URL = "ENTER-URL"
+SUPABASE_SERVICE_ROLE = "ENTER-KEY"
 
 DEVICE_ID = "Arduino Nano"       # must match frontend/device rows
 PORT, BAUD = "COM3", 115200      # <-- match Arduino Serial.begin(115200)
