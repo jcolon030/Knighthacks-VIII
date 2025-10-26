@@ -14,4 +14,4 @@ We started by creating a frontend with HTML, CSS, and JavaScript that takes in l
 
 ## How to Test It Out Yourself
 
-Want to try it out yourself? Connect an arduino microcontroller via USB to your computer, then using an Arduino IDE, run the Arduino Flash file. Input your own API key when prompted. 
+Want to try it out yourself? Connect an arduino microcontroller via USB to your computer, then using an Arduino IDE, run the Arduino Flash file. Also, input your own Supabase API keys when prompted. 
