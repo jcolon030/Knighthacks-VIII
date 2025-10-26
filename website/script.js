@@ -326,7 +326,7 @@ function executeScript() {
       let pin = resolveInputToValue(pinInput);
       let pinArray = pin.toString().split(",");
       console.log(`${pinInput} variable was found -> value: ${pin}`);
-      if (pinArray.length > 1) {
+      if (pinArray.length == 1) {
         finalCommands.push(`C, ${(parseInt(pinArray[0]) - 1).toString()}, ${(parseInt(pinArray[0]) - 1).toString()}`);
       }
       else {
@@ -341,7 +341,7 @@ function executeScript() {
       let pin = resolveInputToValue(pinInput);
       const { r, g, b } = parseColor(color || "#00FF00");
       let pinArray = pin.toString().split(",");
-      if (pinArray.length > 1) {
+      if (pinArray.length == 1) {
         finalCommands.push(`L, ${(parseInt(pinArray[0]) - 1).toString()}, ${(parseInt(pinArray[0]) - 1).toString()}, ${r}, ${g}, ${b}`);
       }
       else {
@@ -356,7 +356,7 @@ function executeScript() {
       let pinArray = pin.toString().split(",");
       let brightness = el.querySelector(".setBrightnessBlockBrightnessInput").value;
       console.log(`Pre CodeBlock: ${brightness}`)
-      if (pinArray.length > 1) {
+      if (pinArray.length == 1) {
         finalCommands.push(`B, ${(parseInt(pinArray[0]) - 1).toString()}, ${(parseInt(pinArray[0]) - 1).toString()}, ${parseBrightness(parseInt(brightness)).toString()}`);
       }
       else {
@@ -391,6 +391,7 @@ function executeScript() {
   });
 
   enqueueProgram("Arduino Nano", finalCommands);
+  console.log(finalCommands);
   finalCommands = [];
 
   console.log("Blocks to export:", blocks);
