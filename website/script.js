@@ -6,6 +6,31 @@
 let blocks = [];
 let variables = {}; // Store int variables
 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+await signInAnonymously(auth);
+const db = getFirestore(app);
+
+export async function saveCommands(deviceId, commands) {
+  await setDoc(
+    doc(db, "devices", deviceId, "config", "db"),
+    {
+      commands_1: commands,
+      updatedAt: serverTimestamp()
+    },
+    { merge: true }
+  );
+
 function getKeyByValue(obj, value) {
     for (let key in obj) {
         if (obj[key] === value) {
@@ -233,60 +258,6 @@ function renderVariables() {
 
 let blockSpace = document.getElementById("blockSpace");
 
-// function setColorBlockClicked() {
-//   blockSpace.innerHTML += `
-//     <span class="setColorBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
-//       light <input type="text" class="setColorBlockPinNum" placeholder="ID">
-//       set color <input type="text" class="setColorBlockColorInput" placeholder="(r,g,b)" style="width: 15vh;">
-//     </span>`;
-// }
-
-// function turnOffBlockClicked() {
-//   blockSpace.innerHTML += `
-//     <span class="turnOffBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
-//       turn off light <input class="turnOffBlockPinNum" type="text" placeholder="ID">
-//     </span>`;
-// }
-
-// function setBrightnessBlockClicked() {
-//   blockSpace.innerHTML += `
-//     <span class="setBrightnessBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
-//       light <input class="setBrightnessBlockPinNum" type="text" placeholder="ID">
-//       setBrightness <input class="setBrightnessBlockBrightnessInput" type="text" placeholder="%">
-//     </span>`;
-// }
-
-// function delayBlockClicked() {
-//   blockSpace.innerHTML += `
-//     <span class="delayBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
-//       wait <input type="text" class="delayBlockTime" placeholder="ms">
-//     </span>`;
-// }
-
-// function setVarBlockClicked() {
-//   blockSpace.innerHTML += `
-//     <span class="setVarBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
-//       set <select class="varSelect"></select> = <input class="varValueInput" placeholder="value">
-//     </span>`;
-//   blockSpace.querySelectorAll('.setVarBlock select').forEach(populateVarSelect);
-// }
-
-// function incVarBlockClicked() {
-//   blockSpace.innerHTML += `
-//     <span class="incVarBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
-//       increment <select class="varSelect"></select> by <input class="varValueInput" placeholder="value">
-//     </span>`;
-//   blockSpace.querySelectorAll('.incVarBlock select').forEach(populateVarSelect);
-// }
-
-// function changeVarBlockClicked() {
-//   blockSpace.innerHTML += `
-//     <span class="changeVarBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
-//       change <select class="varSelect"></select> by <input class="varValueInput" placeholder="value">
-//     </span>`;
-//   blockSpace.querySelectorAll('.changeVarBlock select').forEach(populateVarSelect);
-// }
-
 function populateVarSelect(select) {
   select.innerHTML = '';
   Object.keys(variables).forEach(varName => {
@@ -366,35 +337,6 @@ function executeScript() {
   });
 
   console.log("Blocks to export:", blocks);
-  onExport();
-}
-
-
-// ======================
-// Export
-// ======================
-
-async function onExport() {
-
-  // const firebaseConfig = {
-  //   apiKey: "ENTER_API_KEY",
-  //   authDomain: "lighthacks.us.firebaseapp.com",
-  //   projectId: "lighthacks-app",
-  //   storageBucket: "my-frontend-app.appspot.com",
-  //   messagingSenderId: "123456789",
-  //   appId: "1:123456789:web:abcdef123456"
-  // };
-
-  // const app = initializeApp(firebaseConfig);
-  // const db = getFirestore(app);
-
-  // const DEVICE_ID = "";
-  // let seqCounter = 1;
-
-
-  const sketch = buildArduinoSketch(blocks);
-  const filename = `LiveSketch_${new Date().toISOString().replace(/[:.]/g, "-")}.ino`;
-  downloadTextFile(filename, sketch, "text/plain");
 }
 
 // ======================
@@ -549,4 +491,5 @@ function resolveInputToValue(input) {
   if (trimmed === "") return "";
   if (variables[trimmed] !== undefined) return variables[trimmed];
   return Number(trimmed) || trimmed;
+}
 }
