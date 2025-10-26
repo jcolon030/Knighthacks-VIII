@@ -125,7 +125,8 @@ header {
 .delayBlock,
 .updateBlock,
 .setAllColorBlock,
-.turnOffAllBlock {
+.turnOffAllBlock,
+.rainbowBlock {
   display: flex;
   align-items: center;
   gap: 1vh;
@@ -151,6 +152,9 @@ header {
 
 .updateBlock {background-color: hsl(0, 0%, 50%);}
 .updateBlock:hover {background-color: hsl(0, 0%, 40%); transform: scale(1.05);}
+
+.rainbowBlock {background-color: hsl(0, 0%, 90%);}
+.rainbowBlock:hover{background-color: hsl(0, 0%, 85%); transform: scale(1.05);}
 
 .setColorBlock input,
 .turnOffBlock input,
