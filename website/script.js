@@ -233,7 +233,7 @@ function executeScript() {
   blocks = []; // reset
 
   const blockElements = blockSpace.querySelectorAll(
-    ".setColorBlock, .turnOffBlock, .setBrightnessBlock, .delayBlock, .setVarBlock, .incVarBlock, .changeVarBlock, .updateBlock, .setAllColorBlock, .turnOffAllBlock"
+    ".setColorBlock, .turnOffBlock, .setBrightnessBlock, .delayBlock, .setVarBlock, .incVarBlock, .changeVarBlock, .updateBlock, .setAllColorBlock, .turnOffAllBlock, .rainbowBlock"
   );
 
   blockElements.forEach(el => {
@@ -325,6 +325,9 @@ function executeScript() {
       finalCommands.push(`Z`);
       blocks.push(new CodeBlock("turnAllOff", [], "#000000"));
     }
+    else if(el.classList.contains("rainbowBlock")){
+      finalCommands.push(`R`);
+    }
   });
 
   enqueueProgram("Arduino Nano", finalCommands);
@@ -403,6 +406,10 @@ blockSpace.addEventListener('drop', e => {
   }
   else if(className.includes('turnOffAllBlock')){
     newBlock.innerHTML = 'turn off ALL';
+    newBlock.style.width = '30vh';
+  }
+    else if(className.includes('rainbowBlock')){
+    newBlock.innerHTML = 'rainbow preset';
     newBlock.style.width = '30vh';
   }
 
