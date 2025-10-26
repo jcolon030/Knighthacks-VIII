@@ -228,6 +228,26 @@ function populateVarSelect(select) {
 // Execute Script
 // ======================
 
+function loopExecuteScriptFor30Seconds() {
+  const startTime = Date.now();
+  const interval = 1; // milliseconds between each loop (adjust as needed)
+
+  console.log("Starting 30-second execution loop...");
+
+  const loop = setInterval(() => {
+    const elapsed = (Date.now() - startTime) / 1000;
+
+    if (elapsed >= 30) {
+      clearInterval(loop);
+      console.log("✅ 30 seconds complete. Stopping loop.");
+      return;
+    }
+
+    executeScript(); // Call your function repeatedly
+  }, interval);
+}
+
+
 function executeScript() {
   console.log("Executing blocks...");
   blocks = []; // reset
