@@ -1,15 +1,22 @@
-import time, serial, os
+import os, time, serial
 from supabase import create_client, Client
 
-# --- Supabase (use Service Role on server side) ---
-SUPABASE_URL = "ENTER_API_URL"
-SUPABASE_KEY = "ENTER_API_KEY"
-sb: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+# -----------------------------
+# CONFIG
+# -----------------------------
+SUPABASE_URL = ""
+SUPABASE_SERVICE_ROLE = ""
 
-# --- Serial config ---
-PORT, BAUD = "COM3", 115200
+DEVICE_ID = "Arduino Nano"       # must match frontend/device rows
+PORT, BAUD = "COM3", 115200      # <-- match Arduino Serial.begin(115200)
+
 READY_TOKEN = "READY"
 OK_TOKEN = "OK"
+
+# -----------------------------
+# INIT
+# -----------------------------
+sb: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_ROLE)
 
 def wait_for(ser, token="OK", timeout=5.0):
     t0 = time.time()
@@ -27,52 +34,83 @@ def send(ser, line):
     ser.flush()
 
 def run_commands(ser, commands):
-    """commands is an array of strings like ['C 0 0 8 8 7','W,1000','F,4,4,0,255,0']"""
     for raw in commands or []:
         if not raw:
             continue
         cmd = raw.strip()
         if cmd.upper().startswith("W"):
-            # handle W or W,ms
             parts = cmd.split(",")
-            ms = 1000
-            if len(parts) > 1:
-                try: ms = int(parts[1])
-                except: pass
+            try:
+                ms = int(parts[1]) if len(parts) > 1 else 1000
+            except:
+                ms = 1000
             print(f"[wait] {ms} ms")
-            time.sleep(ms/1000.0)
+            time.sleep(ms / 1000.0)
         else:
             send(ser, cmd)
             if not wait_for(ser, OK_TOKEN, 5.0):
-                print("!! No OK from device; stopping")
-                break
+                print("!! No OK; stopping this program")
+                return False
+    return True
 
-def fetch_program_commands(device_id: str, name: str = "commands_1"):
-    """Fetch the commands array from your existing 'programs' table."""
+def fetch_next_pending(device_id: str):
     resp = (
         sb.table("programs")
-          .select("commands")
+          .select("id,name,n,commands,status")
           .eq("device_id", device_id)
-          .eq("name", name)        # change if your identifier differs
-          .single()
+          .eq("status", "pending")
+          .order("n", desc=False)
+          .limit(1)
           .execute()
     )
-    if not resp.data:
-        print("[!] No program row found")
-        return []
-    return resp.data.get("commands", [])
+    return resp.data[0] if resp.data else None
 
+def set_status(row_id, status, error_msg=None):
+    payload = {"status": status, "updated_at": "now()"}
+    if status == "done":
+        payload["processed_at"] = "now()"
+    if status == "error":
+        payload["error"] = error_msg or "unknown"
+    sb.table("programs").update(payload).eq("id", row_id).execute()
+
+# -----------------------------
+# MAIN LOOP
+# -----------------------------
 def main():
-    DEVICE_ID = "Arduino Nano"     # must match what you saved from the frontend
-    PROGRAM_NAME = "commands_1"    # the field you already use
-
     with serial.Serial(PORT, BAUD, timeout=1, write_timeout=1) as ser:
-        time.sleep(0.5)
-        _ = wait_for(ser, READY_TOKEN, 3.0)  # optional handshake
+        # Give the board time to reset on port open
+        time.sleep(1.5)
+        ser.reset_input_buffer()  # flush any junk
+        ser.reset_output_buffer()
 
-        cmds = fetch_program_commands(DEVICE_ID, PROGRAM_NAME)
-        print(f"Fetched {len(cmds)} commands")
-        run_commands(ser, cmds)
+        print("Waiting for READY...")
+        if not wait_for(ser, READY_TOKEN, 5.0):
+            print("!! Did not see READY. Check BAUD, COM port, wiring.")
+            # You can still continue, but likely nothing will work:
+            # return
+
+        print("Bridge running… (Ctrl+C to stop)")
+        try:
+            while True:
+                row = fetch_next_pending(DEVICE_ID)
+                if not row:
+                    time.sleep(0.25)
+                    continue
+
+                row_id, name, cmds = row["id"], row["name"], row.get("commands", [])
+                print(f"Processing {name} ({len(cmds)} commands)")
+
+                set_status(row_id, "processing")
+                ok = run_commands(ser, cmds)
+                if ok:
+                    set_status(row_id, "done")
+                    print(f"{name} done")
+                else:
+                    set_status(row_id, "error", "No OK from device")
+                    print(f"{name} error")
+
+        except KeyboardInterrupt:
+            print("Stopped.")
 
 if __name__ == "__main__":
     main()
