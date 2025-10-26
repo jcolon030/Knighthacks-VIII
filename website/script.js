@@ -132,7 +132,7 @@ const BLOCK_GENERATORS = {
 
   incVar: ({ varName, value }) => `${varName} += ${resolveValue(value)};`,
 
-  changeVar: ({ varName, value }) => `${varName} += ${resolveValue(value)};`,
+  // changeVar: ({ varName, value }) => `${varName} += ${resolveValue(value)};`,
 
   update: () => {
     console.log(`S`);
@@ -256,7 +256,7 @@ function createVariable() {
   const name = nameInput.value.trim();
   if (!name) return alert("Enter a variable name");
   if (variables[name] !== undefined) return alert("Variable already exists");
-  variables[name] = 0;
+  variables[name] = 1;
   renderVariables();
   nameInput.value = '';
 }
@@ -303,7 +303,7 @@ function executeScript() {
     if (el.classList.contains("setVarBlock")) {
       const varName = el.querySelector('.varSelect').value;
       const value = resolveInputToValue(el.querySelector('.varValueInput').value);
-      variables[varName] = [Number(value)]; // ✅ update variable immediately
+      variables[varName] = Number(value); // ✅ update variable immediately
       blocks.push(new CodeBlock("setVar", [], "#FFFFFF", { varName, value }));
     }
 
