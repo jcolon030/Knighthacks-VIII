@@ -23,8 +23,7 @@ Light Hacks enables anyone to design and control custom light displays without n
 - Visual, drag-and-drop style interface for building light control sequences  
 - Customizable parameters: patterns, colors, transitions, brightness  
 - Hardware integration for microcontroller / LED strips (eg. NeoPixels)  
-- Preview mode in browser + real-world output on connected lights  
-- Shareable presets and configurable scenes  
+- Real-world output on connected lights   
 
 ---
 
@@ -68,6 +67,6 @@ Light Hacks enables anyone to design and control custom light displays without n
    - Movement / patterns (wipe, chase, sparkle, fade)  
    - Brightness and timing controls  
 3. Preview in browser first to see how it looks.  
-4. Once satisfied, hit **Deploy** (or equivalent) to send the sequence to your connected hardware.  
+4. Once satisfied, hit **Execute** to send the sequence to your connected hardware.  
 
 ---
