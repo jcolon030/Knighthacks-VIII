@@ -122,7 +122,8 @@ header {
 .setColorBlock,
 .turnOffBlock,
 .setBrightnessBlock,
-.delayBlock {
+.delayBlock,
+.updateBlock {
   display: flex;
   align-items: center;
   gap: 1vh;
@@ -145,6 +146,8 @@ header {
 
 .delayBlock { background-color: hsl(45, 90%, 60%); }
 .delayBlock:hover { background-color: hsl(45, 90%, 50%); transform: scale(1.05); }
+
+.updateBlock {background-color: hsl(0, 0%, 50%);}
 
 .setColorBlock input,
 .turnOffBlock input,

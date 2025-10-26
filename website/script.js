@@ -1,3 +1,8 @@
+// import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+// import { 
+//   getFirestore, collection, addDoc, serverTimestamp 
+// } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
+
 let blocks = [];
 let variables = {}; // Store int variables
 
@@ -27,11 +32,12 @@ function parseColor(input) {
 // Convert brightness strings like "50%" or variable names to 0–255 scale
 function parseBrightness(value) {
 
-  console.log("I SURVIVED");
-  if (variables[value] !== undefined) value = variables[value];
-  const match = value.toString().match(/(\d+)/);
-  const num = match ? Number(match[1]) : 100;
-  return Math.round((num / 100) * 255);
+  // console.log("I SURVIVED");
+  // if (variables[value] !== undefined) value = variables[value];
+  // const match = value.toString().match(/(\d+)/);
+  // const num = match ? Number(match[1]) : 100;
+  // return Math.round((num / 100) * 255);
+  return value;
 }
 
 // Resolve value: if a variable name, return variable; else return literal
@@ -74,12 +80,12 @@ const BLOCK_GENERATORS = {
   setBrightness: ({ lightIDs, brightness }) => {
     if (lightIDs.length == 1) {
           console.log(`brightness = ${brightness}`);
-          console.log(`B, ${(parseInt(lightIDs[0]) - 1).toString()}, ${parseBrightness(parseInt(brightness)).toString()}`);
-          return `C, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[0]) - 1).toString()}`;
+          console.log(`B, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[0]) - 1).toString()}, ${parseBrightness(parseInt(brightness)).toString()}`);
+          return `B, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[0]) - 1).toString()}, ${parseBrightness(parseInt(brightness)).toString()}`;
       }
     // Multiple lightID (number)
-    console.log(`C, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}`);
-    return `C, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}`;
+    console.log(`B, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}, ${parseBrightness(parseInt(brightness)).toString()}`);
+    return `B, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}, ${parseBrightness(parseInt(brightness)).toString()}`;
   },
   delay: ({ ms }) => {
     console.log(`D, ${resolveValue(ms)}`);
@@ -91,6 +97,11 @@ const BLOCK_GENERATORS = {
   incVar: ({ varName, value }) => `${varName} += ${resolveValue(value)};`,
 
   changeVar: ({ varName, value }) => `${varName} += ${resolveValue(value)};`,
+
+  update: () => {
+    console.log(`S`);
+    return `S`;
+  }
 };
 
 
@@ -222,59 +233,59 @@ function renderVariables() {
 
 let blockSpace = document.getElementById("blockSpace");
 
-function setColorBlockClicked() {
-  blockSpace.innerHTML += `
-    <span class="setColorBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
-      light <input type="text" class="setColorBlockPinNum" placeholder="ID">
-      set color <input type="text" class="setColorBlockColorInput" placeholder="(r,g,b)" style="width: 15vh;">
-    </span>`;
-}
+// function setColorBlockClicked() {
+//   blockSpace.innerHTML += `
+//     <span class="setColorBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
+//       light <input type="text" class="setColorBlockPinNum" placeholder="ID">
+//       set color <input type="text" class="setColorBlockColorInput" placeholder="(r,g,b)" style="width: 15vh;">
+//     </span>`;
+// }
 
-function turnOffBlockClicked() {
-  blockSpace.innerHTML += `
-    <span class="turnOffBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
-      turn off light <input class="turnOffBlockPinNum" type="text" placeholder="ID">
-    </span>`;
-}
+// function turnOffBlockClicked() {
+//   blockSpace.innerHTML += `
+//     <span class="turnOffBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
+//       turn off light <input class="turnOffBlockPinNum" type="text" placeholder="ID">
+//     </span>`;
+// }
 
-function setBrightnessBlockClicked() {
-  blockSpace.innerHTML += `
-    <span class="setBrightnessBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
-      light <input class="setBrightnessBlockPinNum" type="text" placeholder="ID">
-      setBrightness <input class="setBrightnessBlockBrightnessInput" type="text" placeholder="%">
-    </span>`;
-}
+// function setBrightnessBlockClicked() {
+//   blockSpace.innerHTML += `
+//     <span class="setBrightnessBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
+//       light <input class="setBrightnessBlockPinNum" type="text" placeholder="ID">
+//       setBrightness <input class="setBrightnessBlockBrightnessInput" type="text" placeholder="%">
+//     </span>`;
+// }
 
-function delayBlockClicked() {
-  blockSpace.innerHTML += `
-    <span class="delayBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
-      wait <input type="text" class="delayBlockTime" placeholder="ms">
-    </span>`;
-}
+// function delayBlockClicked() {
+//   blockSpace.innerHTML += `
+//     <span class="delayBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
+//       wait <input type="text" class="delayBlockTime" placeholder="ms">
+//     </span>`;
+// }
 
-function setVarBlockClicked() {
-  blockSpace.innerHTML += `
-    <span class="setVarBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
-      set <select class="varSelect"></select> = <input class="varValueInput" placeholder="value">
-    </span>`;
-  blockSpace.querySelectorAll('.setVarBlock select').forEach(populateVarSelect);
-}
+// function setVarBlockClicked() {
+//   blockSpace.innerHTML += `
+//     <span class="setVarBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
+//       set <select class="varSelect"></select> = <input class="varValueInput" placeholder="value">
+//     </span>`;
+//   blockSpace.querySelectorAll('.setVarBlock select').forEach(populateVarSelect);
+// }
 
-function incVarBlockClicked() {
-  blockSpace.innerHTML += `
-    <span class="incVarBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
-      increment <select class="varSelect"></select> by <input class="varValueInput" placeholder="value">
-    </span>`;
-  blockSpace.querySelectorAll('.incVarBlock select').forEach(populateVarSelect);
-}
+// function incVarBlockClicked() {
+//   blockSpace.innerHTML += `
+//     <span class="incVarBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
+//       increment <select class="varSelect"></select> by <input class="varValueInput" placeholder="value">
+//     </span>`;
+//   blockSpace.querySelectorAll('.incVarBlock select').forEach(populateVarSelect);
+// }
 
-function changeVarBlockClicked() {
-  blockSpace.innerHTML += `
-    <span class="changeVarBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
-      change <select class="varSelect"></select> by <input class="varValueInput" placeholder="value">
-    </span>`;
-  blockSpace.querySelectorAll('.changeVarBlock select').forEach(populateVarSelect);
-}
+// function changeVarBlockClicked() {
+//   blockSpace.innerHTML += `
+//     <span class="changeVarBlock" style="margin-left:1vh;margin-top:0;margin-bottom:1vh;">
+//       change <select class="varSelect"></select> by <input class="varValueInput" placeholder="value">
+//     </span>`;
+//   blockSpace.querySelectorAll('.changeVarBlock select').forEach(populateVarSelect);
+// }
 
 function populateVarSelect(select) {
   select.innerHTML = '';
@@ -295,7 +306,7 @@ function executeScript() {
   blocks = []; // reset
 
   const blockElements = blockSpace.querySelectorAll(
-    ".setColorBlock, .turnOffBlock, .setBrightnessBlock, .delayBlock, .setVarBlock, .incVarBlock, .changeVarBlock"
+    ".setColorBlock, .turnOffBlock, .setBrightnessBlock, .delayBlock, .setVarBlock, .incVarBlock, .changeVarBlock, .updateBlock"
   );
 
   blockElements.forEach(el => {
@@ -347,6 +358,11 @@ function executeScript() {
       const ms = el.querySelector(".delayBlockTime").value;
       if (ms) blocks.push(new CodeBlock("delay", [], "#000000", { ms }));
     }
+
+    else if(el.classList.contains("updateBlock")){
+      console.log("found");
+      blocks.push(new CodeBlock("update", [], "#000000"));
+    }
   });
 
   console.log("Blocks to export:", blocks);
@@ -359,6 +375,23 @@ function executeScript() {
 // ======================
 
 async function onExport() {
+
+  // const firebaseConfig = {
+  //   apiKey: "ENTER_API_KEY",
+  //   authDomain: "lighthacks.us.firebaseapp.com",
+  //   projectId: "lighthacks-app",
+  //   storageBucket: "my-frontend-app.appspot.com",
+  //   messagingSenderId: "123456789",
+  //   appId: "1:123456789:web:abcdef123456"
+  // };
+
+  // const app = initializeApp(firebaseConfig);
+  // const db = getFirestore(app);
+
+  // const DEVICE_ID = "";
+  // let seqCounter = 1;
+
+
   const sketch = buildArduinoSketch(blocks);
   const filename = `LiveSketch_${new Date().toISOString().replace(/[:.]/g, "-")}.ino`;
   downloadTextFile(filename, sketch, "text/plain");
@@ -412,6 +445,10 @@ blockSpace.addEventListener('drop', e => {
       ? 'set <select class="varSelect"></select> = <input class="varValueInput" placeholder="value">'
       : 'change <select class="varSelect"></select> by <input class="varValueInput" placeholder="value">';
     newBlock.querySelectorAll('.varSelect').forEach(populateVarSelect);
+  }
+  else if(className.includes('updateBlock')){
+    newBlock.innerHTML = 'update'
+    newBlock.style.width = '10vh';
   }
 
   blockSpace.appendChild(newBlock);
