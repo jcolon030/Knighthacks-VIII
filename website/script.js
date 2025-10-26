@@ -56,7 +56,7 @@ const BLOCK_GENERATORS = {
       }
     // Multiple lightID (number)
     console.log(`L, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}, ${r}, ${g}, ${b}`);
-    return `L, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}, ${r}, ${g}, ${b}`;
+    return `L, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}, ${r}, ${g}, ${b}`; // "L, int, int, R, G, B"
   },
 
   turnOff: ({ lightIDs }) => {
@@ -68,7 +68,7 @@ const BLOCK_GENERATORS = {
       }
     // Multiple lightID (number)
     console.log(`C, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}`);
-    return `C, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}`;
+    return `C, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}`; // "C, int, int"
   },
 
   setBrightness: ({ lightIDs, brightness }) => {
