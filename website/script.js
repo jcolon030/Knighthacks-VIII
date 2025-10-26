@@ -5,9 +5,9 @@ let finalCommands = [];
 
 // ---------------------------------------------
 // Supabase client (browser-side; uses anon key)
-// NOTE: Typically the URL should NOT end with a trailing slash.
+// NOTE: These are restricted keys, so they can stay.
 // ---------------------------------------------
-const SUPABASE_URL = "https://rjcspfjnhadhodecleht.supabase.co/"; // trailing '/' may work but is uncommon
+const SUPABASE_URL = "https://rjcspfjnhadhodecleht.supabase.co/"; 
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJqY3NwZmpuaGFkaG9kZWNsZWh0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NDc5MDUsImV4cCI6MjA3NzAyMzkwNX0.YXpOzWNu9wUH6htpXHyAwBaZecqXwFXszmq2ihU1ENw"; // public anon key
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
