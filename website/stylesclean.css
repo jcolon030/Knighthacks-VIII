@@ -123,7 +123,9 @@ header {
 .turnOffBlock,
 .setBrightnessBlock,
 .delayBlock,
-.updateBlock {
+.updateBlock,
+.setAllColorBlock,
+.turnOffAllBlock {
   display: flex;
   align-items: center;
   gap: 1vh;
@@ -135,11 +137,11 @@ header {
   cursor: grab;
 }
 
-.setColorBlock { background-color: hsl(0, 87%, 68%); }
-.setColorBlock:hover { background-color: hsl(0, 87%, 55%); transform: scale(1.05); }
+.setColorBlock, .setAllColorBlock { background-color: hsl(0, 87%, 68%); }
+.setColorBlock:hover, .setAllColorBlock:hover { background-color: hsl(0, 87%, 55%); transform: scale(1.05); }
 
-.turnOffBlock { background-color: hsl(240, 57%, 73%); }
-.turnOffBlock:hover { background-color: hsl(240, 57%, 60%); transform: scale(1.05); }
+.turnOffBlock, .turnOffAllBlock { background-color: hsl(240, 57%, 73%); }
+.turnOffBlock:hover, .turnOffAllBlock:hover { background-color: hsl(240, 57%, 60%); transform: scale(1.05); }
 
 .setBrightnessBlock { background-color: hsl(120, 65%, 55%); }
 .setBrightnessBlock:hover { background-color: hsl(120, 65%, 40%); transform: scale(1.05); }
@@ -153,7 +155,8 @@ header {
 .setColorBlock input,
 .turnOffBlock input,
 .setBrightnessBlock input,
-.delayBlock input {
+.delayBlock input,
+.setAllColorBlock input {
   width: 5vh;
   border-radius: 0.5vh;
   border: none;
