@@ -1,11 +1,5 @@
-// import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-// import { 
-//   getFirestore, collection, addDoc, serverTimestamp 
-// } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
-
 let blocks = [];
 let variables = {}; // Store int variables
-
 let finalCommands = [];
 
 // app.js
@@ -188,63 +182,6 @@ class CodeBlock {
     }).trim();
   }
 
-}
-
-// ======================
-// Build Arduino Sketch
-// ======================
-
-function buildArduinoSketch(blocks) {
-  const includes = `#include <Adafruit_NeoPixel.h>
-
-#define PIN 2
-#define NUM_LEDS 100
-Adafruit_NeoPixel strip(NUM_LEDS, PIN, NEO_GRB + NEO_KHZ800);
-`;
-
-let dynamicVars = ``;
-
-for(let val in variables){
-  dynamicVars += `
-  int ${val} = 0;`
-}
-
-  const setup = `
-void setup() {
-  strip.begin();
-  strip.show(); // all LEDs off
-}
-`;
-
-  const loopBody = blocks.map(b => b.toCode()).join('\n\n');
-
-  const loop = `
-void loop() {
-${indent(loopBody, 2)}
-}
-`;
-
-  return `${includes}\n${dynamicVars}\n${setup}\n${loop}\n`;
-}
-
-// simple indentation helper
-function indent(text, spaces = 2) {
-  const pad = ' '.repeat(spaces);
-  return text.split('\n').map(l => (l ? pad + l : l)).join('\n');
-}
-
-// ======================
-// Download
-// ======================
-
-function downloadTextFile(filename, text, mime = 'text/plain') {
-  const blob = new Blob([text], { type: mime });
-  const url = URL.createObjectURL(blob);
-  const a = Object.assign(document.createElement('a'), { href: url, download: filename });
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
 }
 
 // ======================

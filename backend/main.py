@@ -33,6 +33,21 @@ def send(ser, line):
     ser.write((line + "\n").encode("utf-8"))
     ser.flush()
 
+def run_for_duration(ser, commands, duration_s=30):
+    """
+    Repeat 'commands' until duration_s has elapsed (guaranteed ~30s total).
+    If Arduino fails to reply 'OK', stop early and return False.
+    """
+    t0 = time.time()
+    cmds = commands
+    if not cmds:
+        return True
+    while time.time() - t0 < duration_s:
+        ok = run_commands(ser, cmds)
+        if not ok:
+            return False
+    return True
+
 def run_commands(ser, commands):
     for raw in commands or []:
         if not raw:
@@ -101,7 +116,7 @@ def main():
                 print(f"Processing {name} ({len(cmds)} commands)")
 
                 set_status(row_id, "processing")
-                ok = run_commands(ser, cmds)
+                ok = run_for_duration(ser, cmds, 30)
                 if ok:
                     set_status(row_id, "done")
                     print(f"{name} done")
