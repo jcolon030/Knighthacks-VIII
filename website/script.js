@@ -26,7 +26,8 @@ function parseColor(input) {
 
 // Convert brightness strings like "50%" or variable names to 0–255 scale
 function parseBrightness(value) {
-  if (!value) return 255;
+
+  console.log("I SURVIVED");
   if (variables[value] !== undefined) value = variables[value];
   const match = value.toString().match(/(\d+)/);
   const num = match ? Number(match[1]) : 100;
@@ -50,42 +51,40 @@ const BLOCK_GENERATORS = {
 
     // Single lightID (number or variable name)
     if (lightIDs.length == 1) {
-        if(Object.values(variables).includes(lightIDs[0])){
-        return `strip.setPixelColor(${getKeyByValue(variables, lightIDs[0])}, strip.Color(${r}, ${g}, ${b}));
-strip.show();`.trim();
+          console.log(`L, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[0]) - 1).toString()}, ${r}, ${g}, ${b}`);
+          return `L, ${variables[`${getKeyByValue(variables, lightIDs[0])}`]}, ${variables[`${getKeyByValue(variables, lightIDs[0])}`]}, ${r}, ${g}, ${b}`;
       }
-  }
-
-    // Multiple IDs (array of numbers)
-    return `
-  int idx[] = {${lightIDs}};
-  for (int i = 0; i < ${lightIDs.length}; i++) {
-    strip.setPixelColor(idx[i], strip.Color(${r}, ${g}, ${b}));
-  }
-  strip.show();
-  `.trim();
+    // Multiple lightID (number)
+    console.log(`L, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}, ${r}, ${g}, ${b}`);
+    return `L, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}, ${r}, ${g}, ${b}`;
   },
 
   turnOff: ({ lightIDs }) => {
-    if (lightIDs.length === 1 && (Object.values(variables).includes(lightIDs[0]))) {
-      return `strip.setPixelColor(${getKeyByValue(variables, lightIDs[0])}, strip.Color(0, 0, 0));
-strip.show();`.trim();
-    }
-    return `
-int idx[] = {${lightIDs}};
-for (int i = 0; i < ${lightIDs.length}; i++) {
-  strip.setPixelColor(idx[i], strip.Color(0, 0, 0));
-}
-strip.show();
-`.trim();
+
+    // Single lightID (number or variable name)
+    if (lightIDs.length == 1) {
+          console.log(`C, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[0]) - 1).toString()}`);
+          return `C, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[0]) - 1).toString()}`;
+      }
+    // Multiple lightID (number)
+    console.log(`C, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}`);
+    return `C, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}`;
   },
 
-  setBrightness: ({ brightness }) => `
-strip.setBrightness(${parseBrightness(brightness)});
-strip.show();
-`.trim(),
-
-  delay: ({ ms = 500 }) => `delay(${resolveValue(ms) || 500});`,
+  setBrightness: ({ lightIDs, brightness }) => {
+    if (lightIDs.length == 1) {
+          console.log(`brightness = ${brightness}`);
+          console.log(`B, ${(parseInt(lightIDs[0]) - 1).toString()}, ${parseBrightness(parseInt(brightness)).toString()}`);
+          return `C, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[0]) - 1).toString()}`;
+      }
+    // Multiple lightID (number)
+    console.log(`C, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}`);
+    return `C, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}`;
+  },
+  delay: ({ ms }) => {
+    console.log(`D, ${resolveValue(ms)}`);
+    return `D, ${resolveValue(ms)}`;
+  },
 
   setVar: ({ varName, value }) => `${varName} = ${resolveValue(value)};`,
 
@@ -303,7 +302,7 @@ function executeScript() {
     if (el.classList.contains("setVarBlock")) {
       const varName = el.querySelector('.varSelect').value;
       const value = resolveInputToValue(el.querySelector('.varValueInput').value);
-      variables[varName] = Number(value); // ✅ update variable immediately
+      variables[varName] = [Number(value)]; // ✅ update variable immediately
       blocks.push(new CodeBlock("setVar", [], "#FFFFFF", { varName, value }));
     }
 
@@ -326,19 +325,22 @@ function executeScript() {
       let pin = resolveInputToValue(pinInput);
       console.log(`${pinInput} variable was found -> value: ${pin}`);
       // ✅ Don’t skip pin=0, only skip empty input
-      if (pinInput !== "") blocks.push(new CodeBlock("turnOff", [pin], "#000000"));
+      if (pinInput !== "") blocks.push(new CodeBlock("turnOff", pin.toString().split(","), "#000000"));
     }
 
     else if (el.classList.contains("setColorBlock")) {
       let pinInput = el.querySelector(".setColorBlockPinNum").value.trim();
       let color = el.querySelector(".setColorBlockColorInput").value;
       let pin = resolveInputToValue(pinInput);
-      if (pinInput !== "" && color) blocks.push(new CodeBlock("light", [pin], color));
+      if (pinInput !== "" && color) blocks.push(new CodeBlock("light", pin.toString().split(","), color));
     }
 
     else if (el.classList.contains("setBrightnessBlock")) {
-      const brightness = el.querySelector(".setBrightnessBlockBrightnessInput").value;
-      blocks.push(new CodeBlock("setBrightness", [], "#FFFFFF", { brightness }));
+      let pinInput = el.querySelector(".setBrightnessBlockPinNum").value.trim();
+      let pin = resolveInputToValue(pinInput);
+      let brightness = el.querySelector(".setBrightnessBlockBrightnessInput").value;
+      console.log(`Pre CodeBlock: ${brightness}`)
+      blocks.push(new CodeBlock("setBrightness", pin.toString().split(","), "#000000", { brightness }));
     }
 
     else if (el.classList.contains("delayBlock")) {
