@@ -11,7 +11,6 @@ Light Hacks enables anyone to design and control custom light displays without n
 - [Tech Stack](#tech-stack)  
 - [Installation & Setup](#installation--setup)  
 - [Usage](#usage)  
-- [Architecture](#architecture)  
 
 ---
 
@@ -72,10 +71,3 @@ Light Hacks enables anyone to design and control custom light displays without n
 4. Once satisfied, hit **Deploy** (or equivalent) to send the sequence to your connected hardware.  
 
 ---
-
-## Architecture  
-Here’s a high-level breakdown:  
-- **Website (Frontend):** React / vanilla JS builds UI, exports scene definitions (JSON).  
-- **Backend:** Receives scene JSON, stores it in DB, serves to hardware modules.  
-- **Hardware module (microcontroller):** Polls backend (or listens via WebSocket / HTTP), receives scene JSON, interprets it into LED control code, drives LED strips in real-time.  
-
