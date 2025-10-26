@@ -16,7 +16,7 @@ Light Hacks enables anyone to design and control custom light displays without n
 ---
 
 ## Live Demo  
-*[Our Devpost Page](https://devpost.com/software/lighthacks)*  
+<a href="https://devpost.com/software/lighthacks" target="_blank">Our Devpost Page</a>
 
 ---
 
