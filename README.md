@@ -1,5 +1,5 @@
 # Light Hacks  
-*Project by Jay Colon – Fall 2025*
+*Project by Jay Colon, Lauren Bliss, Nivedita Sujith, and Brady Leifert – Fall 2025*
 
 Light Hacks enables anyone to design and control custom light displays without needing to write code. With an intuitive “code-block” interface, users can shape movements, colours, brightness and patterns for their lights — whether indoors or outdoors.
 
