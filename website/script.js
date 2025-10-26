@@ -6,30 +6,21 @@
 let blocks = [];
 let variables = {}; // Store int variables
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
-import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+const SUPABASE_URL = "ENTER-URL";
+const SUPABASE_ANON_KEY = "ENTER-API-KEY";
 
-const firebaseConfig = {
-  apiKey: "YOUR_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID"
-};
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-await signInAnonymously(auth);
-const db = getFirestore(app);
-
-export async function saveCommands(deviceId, commands) {
-  await setDoc(
-    doc(db, "devices", deviceId, "config", "db"),
-    {
-      commands_1: commands,
-      updatedAt: serverTimestamp()
-    },
-    { merge: true }
-  );
+async function saveCommands(deviceId, commands) {
+  const { error } = await sb
+    .from("programs")
+    .upsert(
+      { device_id: deviceId, name: "commands_1", commands, updated_at: new Date().toISOString() },
+      { onConflict: "device_id,name" }
+    );
+  if (error) console.error("saveCommands error:", error);
+  else console.log("Saved commands_1");
+}
 
 function getKeyByValue(obj, value) {
     for (let key in obj) {
@@ -336,6 +327,14 @@ function executeScript() {
     }
   });
 
+  saveCommands("my-arduino-1", [
+  "C 0 0 8 8 7",
+  "W,1000",
+  "F,4,4,0,255,0",
+  "W,1000",
+  "C"
+   ]);
+
   console.log("Blocks to export:", blocks);
 }
 
@@ -344,18 +343,28 @@ function executeScript() {
 // ======================
 
 const paletteBlocks = document.querySelectorAll('#blocksPanel span');
+let draggedBlock = null;
 
+// --- Palette block dragging (drag from palette to workspace) ---
 paletteBlocks.forEach(block => {
   block.addEventListener('dragstart', e => {
     e.dataTransfer.setData('text/plain', block.className);
   });
 });
 
+// Allow dropping into workspace
 blockSpace.addEventListener('dragover', e => e.preventDefault());
 
+// --- Drop from palette into workspace ---
 blockSpace.addEventListener('drop', e => {
   e.preventDefault();
+
+  // If we're currently reordering (draggedBlock exists), skip creation
+  if (draggedBlock) return;
+
   const className = e.dataTransfer.getData('text/plain');
+  if (!className) return;
+
   let newBlock = document.createElement('span');
   newBlock.className = className + ' draggableBlock';
   newBlock.style.display = 'block';
@@ -364,7 +373,7 @@ blockSpace.addEventListener('drop', e => {
   newBlock.style.marginTop = '0';
   newBlock.setAttribute('draggable', true);
 
-  // Add inputs depending on type
+  // Add inputs depending on block type
   if (className.includes('setColorBlock')) {
     newBlock.style.width = '50vh';
     newBlock.innerHTML = 'light <input type="text" class="setColorBlockPinNum" placeholder="ID"> set color <input type="text" class="setColorBlockColorInput" placeholder="(r,g,b)" style="width:15vh;">';
@@ -383,29 +392,20 @@ blockSpace.addEventListener('drop', e => {
   }
   else if (className.includes('setVarBlock') || className.includes('changeVarBlock')) {
     newBlock.style.width = '30vh';
-    newBlock.innerHTML = className.includes('setVarBlock') 
+    newBlock.innerHTML = className.includes('setVarBlock')
       ? 'set <select class="varSelect"></select> = <input class="varValueInput" placeholder="value">'
       : 'change <select class="varSelect"></select> by <input class="varValueInput" placeholder="value">';
     newBlock.querySelectorAll('.varSelect').forEach(populateVarSelect);
   }
-  else if(className.includes('updateBlock')){
-    newBlock.innerHTML = 'update'
+  else if (className.includes('updateBlock')) {
+    newBlock.innerHTML = 'update';
     newBlock.style.width = '10vh';
   }
 
   blockSpace.appendChild(newBlock);
 });
 
-document.getElementById('createVarBtn').addEventListener('click', createVariable);
-
-function clearButton() {
-    const blockSpace = document.getElementById('blockSpace');
-    blockSpace.innerHTML = '<button id="execute" onclick="executeScript()">Execute</button>';
-    blocks = [];
-}
-
-let draggedBlock = null;
-
+// --- Reordering logic inside workspace ---
 blockSpace.addEventListener('dragstart', e => {
   if (e.target.classList.contains('draggableBlock')) {
     draggedBlock = e.target;
@@ -414,77 +414,34 @@ blockSpace.addEventListener('dragstart', e => {
 
 blockSpace.addEventListener('dragover', e => {
   e.preventDefault();
+  if (!draggedBlock) return;
+
   const target = e.target.closest('.draggableBlock');
   if (target && target !== draggedBlock) {
     const rect = target.getBoundingClientRect();
     const midY = rect.top + rect.height / 2;
-    if (e.clientY < midY) {
-      blockSpace.insertBefore(draggedBlock, target);
-    } else {
-      blockSpace.insertBefore(draggedBlock, target.nextSibling);
+    const insertBeforeNode = (e.clientY < midY) ? target : target.nextSibling;
+
+    // ✅ Safety check before inserting
+    if (insertBeforeNode instanceof Node && draggedBlock instanceof Node) {
+      blockSpace.insertBefore(draggedBlock, insertBeforeNode);
     }
   }
 });
 
 blockSpace.addEventListener('drop', e => {
-  draggedBlock = null;
+  e.preventDefault();
+  draggedBlock = null; // ✅ Clean reset
 });
 
+// --- Variable creation button ---
+document.getElementById('createVarBtn').addEventListener('click', createVariable);
 
-
-//LIGHT DISPLAY
-
-// const NUM_LEDS = 50; // number of LEDs to display in preview
-// let ledStates = new Array(NUM_LEDS).fill({ r: 0, g: 0, b: 0 }); // track LED colors
-
-// function initLightDisplay() {
-//   const container = document.getElementById("lightDisplayContainer");
-//   container.innerHTML = "";
-//   for (let i = 0; i < NUM_LEDS; i++) {
-//     const led = document.createElement("div");
-//     led.className = "led";
-//     led.dataset.id = i;
-//     container.appendChild(led);
-//   }
-// }
-
-// function updateLightDisplay() {
-//   const container = document.getElementById("lightDisplayContainer");
-//   container.querySelectorAll(".led").forEach((led, i) => {
-//     const { r, g, b } = ledStates[i];
-//     led.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
-//   });
-// }
-
-// // update ledStates based on blocks
-// function simulateBlocks() {
-//   ledStates = new Array(NUM_LEDS).fill({ r: 0, g: 0, b: 0 }); // reset
-
-//   blocks.forEach(block => {
-//     if (block.type === "light") {
-//       block.lightIDs.forEach(id => {
-//         const idx = resolveValue(id);
-//         if (idx >= 0 && idx < NUM_LEDS) {
-//           ledStates[idx] = parseColor(block.color);
-//         }
-//       });
-//     } else if (block.type === "turnOff") {
-//       block.lightIDs.forEach(id => {
-//         const idx = resolveValue(id);
-//         if (idx >= 0 && idx < NUM_LEDS) {
-//           ledStates[idx] = { r: 0, g: 0, b: 0 };
-//         }
-//       });
-//     }
-//   });
-
-//   updateLightDisplay();
-// }
-
-// // call init on page load
-// window.addEventListener("load", () => {
-//   initLightDisplay();
-// });
+// --- Clear workspace function ---
+function clearButton() {
+  blockSpace.innerHTML = '<button id="execute" onclick="executeScript()">Execute</button>';
+  blocks = [];
+}
 
 function resolveInputToValue(input) {
   const trimmed = input.trim();
@@ -492,4 +449,4 @@ function resolveInputToValue(input) {
   if (variables[trimmed] !== undefined) return variables[trimmed];
   return Number(trimmed) || trimmed;
 }
-}
+

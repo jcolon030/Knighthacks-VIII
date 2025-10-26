@@ -6,6 +6,7 @@
     <title>Light Hacks Workspace</title>
     <link rel="stylesheet" href="stylesclean.css">
     <link rel="icon" type="image/x-icon" href="../images/faviconsmall.png">
+     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body id="workspacepage">
     <nav id="navbar"></nav>
@@ -93,29 +94,6 @@
         <!-- Workspace -->
         <div id="blockSpace">
             <button id="execute" onclick="executeScript()">Execute</button>
-            <script type="module">
-                import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-                import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore.js";
-
-                const firebaseConfig = {
-                    apiKey: "YOUR_KEY",
-                    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-                    projectId: "YOUR_PROJECT_ID",
-                };
-
-                const app = initializeApp(firebaseConfig);
-                const db = getFirestore(app);
-
-                async function saveDoc() {
-                    await setDoc(doc(db, "testCollection", "testDoc"), {
-                    msg: "Hello from Firestore",
-                    createdAt: serverTimestamp()
-                    });
-                    console.log("Document written!");
-                }
-
-                saveDoc();
-            </script>
         </div>
 
         <!-- Variables panel -->

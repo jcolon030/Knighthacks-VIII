@@ -148,6 +148,7 @@ header {
 .delayBlock:hover { background-color: hsl(45, 90%, 50%); transform: scale(1.05); }
 
 .updateBlock {background-color: hsl(0, 0%, 50%);}
+.updateBlock:hover {background-color: hsl(0, 0%, 40%); transform: scale(1.05);}
 
 .setColorBlock input,
 .turnOffBlock input,
