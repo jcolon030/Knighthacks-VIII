@@ -1,30 +1,43 @@
+// In-memory program and variable stores
 let blocks = [];
-let variables = {}; // Store int variables
+let variables = {}; // Stores integer variables by name
 let finalCommands = [];
 
-// app.js
-const SUPABASE_URL = "https://rjcspfjnhadhodecleht.supabase.co/";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJqY3NwZmpuaGFkaG9kZWNsZWh0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NDc5MDUsImV4cCI6MjA3NzAyMzkwNX0.YXpOzWNu9wUH6htpXHyAwBaZecqXwFXszmq2ihU1ENw";   // anon/public key
+// ---------------------------------------------
+// Supabase client (browser-side; uses anon key)
+// NOTE: Typically the URL should NOT end with a trailing slash.
+// ---------------------------------------------
+const SUPABASE_URL = "https://rjcspfjnhadhodecleht.supabase.co/"; // trailing '/' may work but is uncommon
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJqY3NwZmpuaGFkaG9kZWNsZWh0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NDc5MDUsImV4cCI6MjA3NzAyMzkwNX0.YXpOzWNu9wUH6htpXHyAwBaZecqXwFXszmq2ihU1ENw"; // public anon key
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// enqueue next commands_N for a device
+// ---------------------------------------------
+// Enqueue a new commands_N row for a device
+// - Computes next N by reading existing rows
+// - Inserts a new row with status "pending"
+// ---------------------------------------------
 async function enqueueProgram(deviceId, commands) {
-  // 1) Find current max N
+  // 1) Read existing rows to determine next N
   const { data, error } = await sb
     .from("programs")
     .select("n")
     .eq("device_id", deviceId)
     .like("name", "commands_%");
 
-  if (error) { console.error("select n error:", error); return; }
+  if (error) { 
+    console.error("select n error:", error); 
+    return; 
+  }
+
+  // Find max n then add 1 (fallback to 1 if none)
   const nextN = (data?.reduce((m, r) => Math.max(m, r?.n ?? 0), 0) || 0) + 1;
   const name = `commands_${nextN}`;
 
-  // 2) Insert pending row
+  // 2) Insert the pending program row
   const { error: insErr } = await sb.from("programs").insert({
     device_id: deviceId,
     name,
-    commands,                 // array of strings
+    commands,                 // JSON array of strings
     status: "pending",
     updated_at: new Date().toISOString()
   });
@@ -33,20 +46,22 @@ async function enqueueProgram(deviceId, commands) {
   else console.log("Enqueued", name);
 }
 
+// ---------------------------------------------
+// Reverse-lookup helper: find key name by value
+// Returns the first key whose value === value
+// ---------------------------------------------
 function getKeyByValue(obj, value) {
-    for (let key in obj) {
-        if (obj[key] === value) {
-            return key;
-        }
-    }
-    return null; // if not found
+  for (let key in obj) {
+    if (obj[key] === value) return key;
+  }
+  return null;
 }
 
 // ======================
 // Helper Functions
 // ======================
 
-// Convert "#RRGGBB" or "(r,g,b)" to {r,g,b}
+// Parse color in "#RRGGBB" or "(r,g,b)" into {r,g,b}
 function parseColor(input) {
   if (!input) return { r: 0, g: 255, b: 0 };
   const rgbMatch = input.match(/\(?\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)?/);
@@ -56,18 +71,15 @@ function parseColor(input) {
   return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
 }
 
-// Convert brightness strings like "50%" or variable names to 0–255 scale
+// Brightness passthrough (kept as-is)
+// If you later accept "50%" etc., convert to 0–255 here
 function parseBrightness(value) {
-
-  // console.log("I SURVIVED");
-  // if (variables[value] !== undefined) value = variables[value];
-  // const match = value.toString().match(/(\d+)/);
-  // const num = match ? Number(match[1]) : 100;
-  // return Math.round((num / 100) * 255);
   return value;
 }
 
-// Resolve value: if a variable name, return variable; else return literal
+// Resolve a token to a value:
+// - If it matches a variable name, return the variable's value
+// - Otherwise return the literal (string or number)
 function resolveValue(val) {
   if (variables[val] !== undefined) return variables[val];
   return val;
@@ -75,76 +87,103 @@ function resolveValue(val) {
 
 // ======================
 // Block Generators
+// Produce command strings for each block type
 // ======================
 
 const BLOCK_GENERATORS = {
   light: ({ lightIDs, color }) => {
     const { r, g, b } = parseColor(color || "#00FF00");
 
-    // Single lightID (number or variable name)
+    // Single light id (either number or variable name)
     if (lightIDs.length == 1) {
-          finalCommands.push(`L, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[0]) - 1).toString()}, ${r}, ${g}, ${b}`);
-          console.log(finalCommands);
-          console.log(`L, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[0]) - 1).toString()}, ${r}, ${g}, ${b}`);
-          return `L, ${variables[`${getKeyByValue(variables, lightIDs[0])}`]}, ${variables[`${getKeyByValue(variables, lightIDs[0])}`]}, ${r}, ${g}, ${b}`;
-      }
-    // Multiple lightID (number)
-    finalCommands.push(`L, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}, ${r}, ${g}, ${b}`);
+      // Push to finalCommands for downstream enqueue
+      finalCommands.push(
+        `L, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[0]) - 1).toString()}, ${r}, ${g}, ${b}`
+      );
+      console.log(finalCommands);
+      console.log(
+        `L, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[0]) - 1).toString()}, ${r}, ${g}, ${b}`
+      );
+
+      // Return a string using variable lookup, if applicable
+      return `L, ${variables[`${getKeyByValue(variables, lightIDs[0])}`]}, ${variables[`${getKeyByValue(variables, lightIDs[0])}`]}, ${r}, ${g}, ${b}`;
+    }
+
+    // Multiple light ids (assumes a contiguous range from first to last)
+    finalCommands.push(
+      `L, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}, ${r}, ${g}, ${b}`
+    );
     console.log(typeof finalCommands);
-    console.log(`L, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}, ${r}, ${g}, ${b}`);
-    return `L, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}, ${r}, ${g}, ${b}`; // "L, int, int, R, G, B"
+    console.log(
+      `L, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}, ${r}, ${g}, ${b}`
+    );
+
+    // Return string for the range
+    return `L, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}, ${r}, ${g}, ${b}`;
   },
 
   turnOff: ({ lightIDs }) => {
-
-    // Single lightID (number or variable name)
+    // Single id: clear one index
     if (lightIDs.length == 1) {
-          console.log(`C, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[0]) - 1).toString()}`);
-          return `C, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[0]) - 1).toString()}`;
-      }
-    // Multiple lightID (number)
-    console.log(`C, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}`);
-    return `C, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}`; // "C, int, int"
+      console.log(
+        `C, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[0]) - 1).toString()}`
+      );
+      return `C, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[0]) - 1).toString()}`;
+    }
+    // Multiple ids: clear a range from first to last
+    console.log(
+      `C, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}`
+    );
+    return `C, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}`;
   },
 
   setBrightness: ({ lightIDs, brightness }) => {
+    // Emits a per-range brightness command (your firmware may actually use global brightness)
     if (lightIDs.length == 1) {
-          console.log(`brightness = ${brightness}`);
-          console.log(`B, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[0]) - 1).toString()}, ${parseBrightness(parseInt(brightness)).toString()}`);
-          return `B, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[0]) - 1).toString()}, ${parseBrightness(parseInt(brightness)).toString()}`;
-      }
-    // Multiple lightID (number)
-    console.log(`B, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}, ${parseBrightness(parseInt(brightness)).toString()}`);
+      console.log(`brightness = ${brightness}`);
+      console.log(
+        `B, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[0]) - 1).toString()}, ${parseBrightness(parseInt(brightness)).toString()}`
+      );
+      return `B, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[0]) - 1).toString()}, ${parseBrightness(parseInt(brightness)).toString()}`;
+    }
+    // Range brightness
+    console.log(
+      `B, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}, ${parseBrightness(parseInt(brightness)).toString()}`
+    );
     return `B, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}, ${parseBrightness(parseInt(brightness)).toString()}`;
   },
+
+  // Delay block: emits "D,<ms>" (or "W,<ms>" if your firmware expects W)
   delay: ({ ms }) => {
     console.log(`D, ${resolveValue(ms)}`);
     return `D, ${resolveValue(ms)}`;
   },
 
+  // Variable write (purely symbolic in the emitted code string)
   setVar: ({ varName, value }) => `${varName} = ${resolveValue(value)};`,
 
+  // Variable increment (emitted as code string)
   incVar: ({ varName, value }) => `${varName} += ${resolveValue(value)};`,
 
-  // changeVar: ({ varName, value }) => `${varName} += ${resolveValue(value)};`,
-
+  // update/show command
   update: () => {
     console.log(`S`);
     return `S`;
   },
 
-  setAllColors: (color) =>{
-    //
+  // Preset hooks (implement as needed)
+  setAllColors: (color) => {
+    // Placeholder
   },
 
-  turnAllOff: () =>{
-    //
+  turnAllOff: () => {
+    // Placeholder
   }
 };
 
-
 // ======================
 // CodeBlock Class
+// Wraps a block instance and produces a command string via generator
 // ======================
 
 class CodeBlock {
@@ -152,28 +191,28 @@ class CodeBlock {
     this.type = type;
     this.lightIDs = lightIDs;
     this.color = color;
-    this.extra = extra; // brightness, ms, varName, value, etc.
+    this.extra = extra; // e.g., { brightness }, { ms }, { varName, value }, etc.
   }
 
   toCode() {
     const gen = BLOCK_GENERATORS[this.type];
     if (!gen) throw new Error(`Unknown block type: ${this.type}`);
 
-    // If there’s a single light ID, check if it’s a variable
+    // Special-case: single ID that matches a variable name
     if (this.lightIDs.length === 1) {
       const id = this.lightIDs[0];
       if (variables.hasOwnProperty(id)) {
-        // Pass the variable name itself, not the value
+        // Pass through the variable name for generator to resolve
         return gen({
           type: this.type,
-          lightIDs: [id], // <-- variable name as string
+          lightIDs: [id],
           color: this.color,
           ...this.extra,
         }).trim();
       }
     }
 
-    // Default: use the numeric light IDs
+    // Default: pass numeric IDs or literals directly
     return gen({
       type: this.type,
       lightIDs: this.lightIDs,
@@ -181,13 +220,13 @@ class CodeBlock {
       ...this.extra,
     }).trim();
   }
-
 }
 
 // ======================
-// Variables
+// Variables UI helpers
 // ======================
 
+// Create a new variable with default value 1
 function createVariable() {
   const nameInput = document.getElementById('newVarName');
   const name = nameInput.value.trim();
@@ -198,6 +237,7 @@ function createVariable() {
   nameInput.value = '';
 }
 
+// Render variables to a list element
 function renderVariables() {
   const list = document.getElementById('variablesList');
   list.innerHTML = '';
@@ -214,6 +254,7 @@ function renderVariables() {
 
 let blockSpace = document.getElementById("blockSpace");
 
+// Populate a <select> with current variable names
 function populateVarSelect(select) {
   select.innerHTML = '';
   Object.keys(variables).forEach(varName => {
@@ -226,31 +267,35 @@ function populateVarSelect(select) {
 
 // ======================
 // Execute Script
+// Walk the UI blocks, build CodeBlock objects, and emit command strings
 // ======================
 
 function executeScript() {
   console.log("Executing blocks...");
-  blocks = []; // reset
+  blocks = []; // clear previous run
 
   const blockElements = blockSpace.querySelectorAll(
     ".setColorBlock, .turnOffBlock, .setBrightnessBlock, .delayBlock, .setVarBlock, .incVarBlock, .changeVarBlock, .updateBlock, .setAllColorBlock, .turnOffAllBlock, .rainbowBlock"
   );
 
   blockElements.forEach(el => {
+    // Set variable to explicit value
     if (el.classList.contains("setVarBlock")) {
       const varName = el.querySelector('.varSelect').value;
       const value = resolveInputToValue(el.querySelector('.varValueInput').value);
-      variables[varName] = Number(value); // ✅ update variable immediately
+      variables[varName] = Number(value); // update immediately
       blocks.push(new CodeBlock("setVar", [], "#FFFFFF", { varName, value }));
     }
 
+    // Increment variable by a value
     else if (el.classList.contains("incVarBlock")) {
       const varName = el.querySelector('.varSelect').value;
       const value = resolveInputToValue(el.querySelector('.varValueInput').value);
-      variables[varName] += Number(value); // ✅ increment variable immediately
+      variables[varName] += Number(value); // increment immediately
       blocks.push(new CodeBlock("incVar", [], "#FFFFFF", { varName, value }));
     }
 
+    // Change variable by a value (same as increment here)
     else if (el.classList.contains("changeVarBlock")) {
       const varName = el.querySelector('.varSelect').value;
       const value = resolveInputToValue(el.querySelector('.varValueInput').value);
@@ -258,6 +303,7 @@ function executeScript() {
       blocks.push(new CodeBlock("changeVar", [], "#FFFFFF", { varName, value }));
     }
 
+    // Turn off one or a range of lights
     else if (el.classList.contains("turnOffBlock")) {
       let pinInput = el.querySelector(".turnOffBlockPinNum").value.trim();
       let pin = resolveInputToValue(pinInput);
@@ -265,13 +311,13 @@ function executeScript() {
       console.log(`${pinInput} variable was found -> value: ${pin}`);
       if (pinArray.length == 1) {
         finalCommands.push(`C, ${(parseInt(pinArray[0]) - 1).toString()}, ${(parseInt(pinArray[0]) - 1).toString()}`);
-      }
-      else {
+      } else {
         finalCommands.push(`C, ${(parseInt(pinArray[0]) - 1).toString()}, ${(parseInt(pinArray[pinArray.length - 1]) - 1).toString()}`);
       }
       if (pinInput !== "") blocks.push(new CodeBlock("turnOff", pinArray, "#000000"));
     }
 
+    // Set color for one or a range of lights
     else if (el.classList.contains("setColorBlock")) {
       let pinInput = el.querySelector(".setColorBlockPinNum").value.trim();
       let color = el.querySelector(".setColorBlockColorInput").value;
@@ -280,85 +326,95 @@ function executeScript() {
       let pinArray = pin.toString().split(",");
       if (pinArray.length == 1) {
         finalCommands.push(`L, ${(parseInt(pinArray[0]) - 1).toString()}, ${(parseInt(pinArray[0]) - 1).toString()}, ${r}, ${g}, ${b}`);
-      }
-      else {
+      } else {
         finalCommands.push(`L, ${(parseInt(pinArray[0]) - 1).toString()}, ${(parseInt(pinArray[pinArray.length - 1]) - 1).toString()}, ${r}, ${g}, ${b}`);
       }
       if (pinInput !== "" && color) blocks.push(new CodeBlock("light", pinArray, color));
     }
 
+    // Set brightness for one or a range (depending on firmware support)
     else if (el.classList.contains("setBrightnessBlock")) {
       let pinInput = el.querySelector(".setBrightnessBlockPinNum").value.trim();
       let pin = resolveInputToValue(pinInput);
       let pinArray = pin.toString().split(",");
       let brightness = el.querySelector(".setBrightnessBlockBrightnessInput").value;
-      console.log(`Pre CodeBlock: ${brightness}`)
+      console.log(`Pre CodeBlock: ${brightness}`);
       if (pinArray.length == 1) {
         finalCommands.push(`B, ${(parseInt(pinArray[0]) - 1).toString()}, ${(parseInt(pinArray[0]) - 1).toString()}, ${parseBrightness(parseInt(brightness)).toString()}`);
-      }
-      else {
+      } else {
         finalCommands.push(`B, ${(parseInt(pinArray[0]) - 1).toString()}, ${(parseInt(pinArray[pinArray.length - 1]) - 1).toString()}, ${parseBrightness(parseInt(brightness)).toString()}`);
       }
       blocks.push(new CodeBlock("setBrightness", pinArray, "#000000", { brightness }));
     }
 
+    // Delay block
     else if (el.classList.contains("delayBlock")) {
       const ms = el.querySelector(".delayBlockTime").value;
       finalCommands.push(`D, ${resolveValue(ms)}`);
       if (ms) blocks.push(new CodeBlock("delay", [], "#000000", { ms }));
     }
 
-    else if(el.classList.contains("updateBlock")){
+    // Flush/show block
+    else if (el.classList.contains("updateBlock")) {
       console.log("found");
       finalCommands.push(`S`);
       blocks.push(new CodeBlock("update", [], "#000000"));
     }
 
-    else if(el.classList.contains("setAllColorBlock")){
+    // Set all lights to color
+    else if (el.classList.contains("setAllColorBlock")) {
       let color = el.querySelector(".setAllColorBlockInput").value;
       let { r, g, b } = parseColor(color || "#00FF00");
       finalCommands.push(`A, ${r}, ${g}, ${b}`);
       blocks.push(new CodeBlock("setAllColors", [], color));
     }
 
-    else if(el.classList.contains("turnOffAllBlock")){
+    // Turn off all lights
+    else if (el.classList.contains("turnOffAllBlock")) {
       finalCommands.push(`Z`);
       blocks.push(new CodeBlock("turnAllOff", [], "#000000"));
     }
-    else if(el.classList.contains("rainbowBlock")){
+
+    // Rainbow preset trigger (single-letter command)
+    else if (el.classList.contains("rainbowBlock")) {
       finalCommands.push(`R`);
     }
   });
 
+  // Enqueue built commands for processing by the backend bridge
   enqueueProgram("Arduino Nano", finalCommands);
+
+  // Debug output
   console.log(finalCommands);
+
+  // Reset the command buffer after enqueue
   finalCommands = [];
 
   console.log("Blocks to export:", blocks);
 }
 
 // ======================
-// Drag and Drop
+// Drag and Drop UI wiring
 // ======================
 
 const paletteBlocks = document.querySelectorAll('#blocksPanel span');
 let draggedBlock = null;
 
-// --- Palette block dragging (drag from palette to workspace) ---
+// Start dragging from palette: store the className as the drag data
 paletteBlocks.forEach(block => {
   block.addEventListener('dragstart', e => {
     e.dataTransfer.setData('text/plain', block.className);
   });
 });
 
-// Allow dropping into workspace
+// Allow dropping into the workspace
 blockSpace.addEventListener('dragover', e => e.preventDefault());
 
-// --- Drop from palette into workspace ---
+// Drop from the palette into the workspace: create a new block element
 blockSpace.addEventListener('drop', e => {
   e.preventDefault();
 
-  // If we're currently reordering (draggedBlock exists), skip creation
+  // If currently reordering an existing block, skip creating a new one
   if (draggedBlock) return;
 
   const className = e.dataTransfer.getData('text/plain');
@@ -372,7 +428,7 @@ blockSpace.addEventListener('drop', e => {
   newBlock.style.marginTop = '0';
   newBlock.setAttribute('draggable', true);
 
-  // Add inputs depending on block type
+  // Populate block inner HTML and sizing based on type
   if (className.includes('setColorBlock')) {
     newBlock.style.width = '50vh';
     newBlock.innerHTML = 'light <input type="text" class="setColorBlockPinNum" placeholder="ID"> set color <input type="text" class="setColorBlockColorInput" placeholder="(r,g,b)" style="width:15vh;">';
@@ -400,15 +456,15 @@ blockSpace.addEventListener('drop', e => {
     newBlock.innerHTML = 'update';
     newBlock.style.width = '10vh';
   }
-  else if(className.includes('setAllColorBlock')){
+  else if (className.includes('setAllColorBlock')) {
     newBlock.innerHTML = 'ALL lights color <input class="setAllColorBlockInput" placeholder="(r,g,b)" style="width:15vh;">';
     newBlock.style.width = '50vh';
   }
-  else if(className.includes('turnOffAllBlock')){
+  else if (className.includes('turnOffAllBlock')) {
     newBlock.innerHTML = 'turn off ALL';
     newBlock.style.width = '30vh';
   }
-    else if(className.includes('rainbowBlock')){
+  else if (className.includes('rainbowBlock')) {
     newBlock.innerHTML = 'rainbow preset';
     newBlock.style.width = '30vh';
   }
@@ -416,13 +472,14 @@ blockSpace.addEventListener('drop', e => {
   blockSpace.appendChild(newBlock);
 });
 
-// --- Reordering logic inside workspace ---
+// Begin reordering an existing block in the workspace
 blockSpace.addEventListener('dragstart', e => {
   if (e.target.classList.contains('draggableBlock')) {
     draggedBlock = e.target;
   }
 });
 
+// Handle reordering position on dragover
 blockSpace.addEventListener('dragover', e => {
   e.preventDefault();
   if (!draggedBlock) return;
@@ -433,31 +490,34 @@ blockSpace.addEventListener('dragover', e => {
     const midY = rect.top + rect.height / 2;
     const insertBeforeNode = (e.clientY < midY) ? target : target.nextSibling;
 
-    // ✅ Safety check before inserting
+    // Guard against DOM exceptions
     if (insertBeforeNode instanceof Node && draggedBlock instanceof Node) {
       blockSpace.insertBefore(draggedBlock, insertBeforeNode);
     }
   }
 });
 
+// Finish reordering
 blockSpace.addEventListener('drop', e => {
   e.preventDefault();
-  draggedBlock = null; // ✅ Clean reset
+  draggedBlock = null; // reset drag state
 });
 
-// --- Variable creation button ---
+// Variable creation button handler
 document.getElementById('createVarBtn').addEventListener('click', createVariable);
 
-// --- Clear workspace function ---
+// Clear the workspace and reset blocks
 function clearButton() {
   blockSpace.innerHTML = '<button id="execute" onclick="executeScript()">Execute</button>';
   blocks = [];
 }
 
+// Resolve input values:
+// - If matches a variable name, returns that variable's numeric value
+// - Otherwise returns Number(trimmed) if numeric, else the raw string
 function resolveInputToValue(input) {
   const trimmed = input.trim();
   if (trimmed === "") return "";
   if (variables[trimmed] !== undefined) return variables[trimmed];
   return Number(trimmed) || trimmed;
 }
-
