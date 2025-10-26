@@ -1,6 +1,15 @@
 let blocks = [];
 let variables = {}; // Store int variables
 
+function getKeyByValue(obj, value) {
+    for (let key in obj) {
+        if (obj[key] === value) {
+            return key;
+        }
+    }
+    return null; // if not found
+}
+
 // ======================
 // Helper Functions
 // ======================
@@ -30,6 +39,7 @@ function resolveValue(val) {
   return val;
 }
 
+
 // ======================
 // Block Generators
 // ======================
@@ -37,22 +47,38 @@ function resolveValue(val) {
 const BLOCK_GENERATORS = {
   light: ({ lightIDs, color }) => {
     const { r, g, b } = parseColor(color || "#00FF00");
+
+    // Single lightID (number or variable name)
+    if (lightIDs.length == 1) {
+        if(Object.values(variables).includes(lightIDs[0])){
+        return `strip.setPixelColor(${getKeyByValue(variables, lightIDs[0])}, strip.Color(${r}, ${g}, ${b}));
+strip.show();`.trim();
+      }
+  }
+
+    // Multiple IDs (array of numbers)
     return `
-int idx[] = {${lightIDs}};
-for (int i = 0; i < ${lightIDs.length}; i++) {
-  strip.setPixelColor(idx[i], strip.Color(${r}, ${g}, ${b}));
-}
-strip.show();
-`.trim();
+  int idx[] = {${lightIDs}};
+  for (int i = 0; i < ${lightIDs.length}; i++) {
+    strip.setPixelColor(idx[i], strip.Color(${r}, ${g}, ${b}));
+  }
+  strip.show();
+  `.trim();
   },
 
-  turnOff: ({ lightIDs }) => `
+  turnOff: ({ lightIDs }) => {
+    if (lightIDs.length === 1 && (Object.values(variables).includes(lightIDs[0]))) {
+      return `strip.setPixelColor(${getKeyByValue(variables, lightIDs[0])}, strip.Color(0, 0, 0));
+strip.show();`.trim();
+    }
+    return `
 int idx[] = {${lightIDs}};
 for (int i = 0; i < ${lightIDs.length}; i++) {
   strip.setPixelColor(idx[i], strip.Color(0, 0, 0));
 }
 strip.show();
-`.trim(),
+`.trim();
+  },
 
   setBrightness: ({ brightness }) => `
 strip.setBrightness(${parseBrightness(brightness)});
@@ -67,6 +93,7 @@ strip.show();
 
   changeVar: ({ varName, value }) => `${varName} += ${resolveValue(value)};`,
 };
+
 
 // ======================
 // CodeBlock Class
@@ -83,6 +110,22 @@ class CodeBlock {
   toCode() {
     const gen = BLOCK_GENERATORS[this.type];
     if (!gen) throw new Error(`Unknown block type: ${this.type}`);
+
+    // If there’s a single light ID, check if it’s a variable
+    if (this.lightIDs.length === 1) {
+      const id = this.lightIDs[0];
+      if (variables.hasOwnProperty(id)) {
+        // Pass the variable name itself, not the value
+        return gen({
+          type: this.type,
+          lightIDs: [id], // <-- variable name as string
+          color: this.color,
+          ...this.extra,
+        }).trim();
+      }
+    }
+
+    // Default: use the numeric light IDs
     return gen({
       type: this.type,
       lightIDs: this.lightIDs,
@@ -90,6 +133,7 @@ class CodeBlock {
       ...this.extra,
     }).trim();
   }
+
 }
 
 // ======================
@@ -103,6 +147,13 @@ function buildArduinoSketch(blocks) {
 #define NUM_LEDS 100
 Adafruit_NeoPixel strip(NUM_LEDS, PIN, NEO_GRB + NEO_KHZ800);
 `;
+
+let dynamicVars = ``;
+
+for(let val in variables){
+  dynamicVars += `
+  int ${val} = 0;`
+}
 
   const setup = `
 void setup() {
@@ -119,7 +170,7 @@ ${indent(loopBody, 2)}
 }
 `;
 
-  return `${includes}\n${setup}\n${loop}\n`;
+  return `${includes}\n${dynamicVars}\n${setup}\n${loop}\n`;
 }
 
 // simple indentation helper
