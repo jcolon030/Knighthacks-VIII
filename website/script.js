@@ -338,6 +338,7 @@ blockSpace.addEventListener('drop', e => {
 
   // Add inputs depending on type
   if (className.includes('setColorBlock')) {
+    newBlock.style.width = '50vh';
     newBlock.innerHTML = 'light <input type="text" class="setColorBlockPinNum" placeholder="ID"> set color <input type="text" class="setColorBlockColorInput" placeholder="(r,g,b)" style="width:15vh;">';
   }
   else if (className.includes('turnOffBlock')) {
@@ -353,6 +354,7 @@ blockSpace.addEventListener('drop', e => {
     newBlock.style.width = '15vh';
   }
   else if (className.includes('setVarBlock') || className.includes('changeVarBlock')) {
+    newBlock.style.width = '30vh';
     newBlock.innerHTML = className.includes('setVarBlock') 
       ? 'set <select class="varSelect"></select> = <input class="varValueInput" placeholder="value">'
       : 'change <select class="varSelect"></select> by <input class="varValueInput" placeholder="value">';
@@ -400,57 +402,57 @@ blockSpace.addEventListener('drop', e => {
 
 //LIGHT DISPLAY
 
-const NUM_LEDS = 50; // number of LEDs to display in preview
-let ledStates = new Array(NUM_LEDS).fill({ r: 0, g: 0, b: 0 }); // track LED colors
+// const NUM_LEDS = 50; // number of LEDs to display in preview
+// let ledStates = new Array(NUM_LEDS).fill({ r: 0, g: 0, b: 0 }); // track LED colors
 
-function initLightDisplay() {
-  const container = document.getElementById("lightDisplayContainer");
-  container.innerHTML = "";
-  for (let i = 0; i < NUM_LEDS; i++) {
-    const led = document.createElement("div");
-    led.className = "led";
-    led.dataset.id = i;
-    container.appendChild(led);
-  }
-}
+// function initLightDisplay() {
+//   const container = document.getElementById("lightDisplayContainer");
+//   container.innerHTML = "";
+//   for (let i = 0; i < NUM_LEDS; i++) {
+//     const led = document.createElement("div");
+//     led.className = "led";
+//     led.dataset.id = i;
+//     container.appendChild(led);
+//   }
+// }
 
-function updateLightDisplay() {
-  const container = document.getElementById("lightDisplayContainer");
-  container.querySelectorAll(".led").forEach((led, i) => {
-    const { r, g, b } = ledStates[i];
-    led.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
-  });
-}
+// function updateLightDisplay() {
+//   const container = document.getElementById("lightDisplayContainer");
+//   container.querySelectorAll(".led").forEach((led, i) => {
+//     const { r, g, b } = ledStates[i];
+//     led.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+//   });
+// }
 
-// update ledStates based on blocks
-function simulateBlocks() {
-  ledStates = new Array(NUM_LEDS).fill({ r: 0, g: 0, b: 0 }); // reset
+// // update ledStates based on blocks
+// function simulateBlocks() {
+//   ledStates = new Array(NUM_LEDS).fill({ r: 0, g: 0, b: 0 }); // reset
 
-  blocks.forEach(block => {
-    if (block.type === "light") {
-      block.lightIDs.forEach(id => {
-        const idx = resolveValue(id);
-        if (idx >= 0 && idx < NUM_LEDS) {
-          ledStates[idx] = parseColor(block.color);
-        }
-      });
-    } else if (block.type === "turnOff") {
-      block.lightIDs.forEach(id => {
-        const idx = resolveValue(id);
-        if (idx >= 0 && idx < NUM_LEDS) {
-          ledStates[idx] = { r: 0, g: 0, b: 0 };
-        }
-      });
-    }
-  });
+//   blocks.forEach(block => {
+//     if (block.type === "light") {
+//       block.lightIDs.forEach(id => {
+//         const idx = resolveValue(id);
+//         if (idx >= 0 && idx < NUM_LEDS) {
+//           ledStates[idx] = parseColor(block.color);
+//         }
+//       });
+//     } else if (block.type === "turnOff") {
+//       block.lightIDs.forEach(id => {
+//         const idx = resolveValue(id);
+//         if (idx >= 0 && idx < NUM_LEDS) {
+//           ledStates[idx] = { r: 0, g: 0, b: 0 };
+//         }
+//       });
+//     }
+//   });
 
-  updateLightDisplay();
-}
+//   updateLightDisplay();
+// }
 
-// call init on page load
-window.addEventListener("load", () => {
-  initLightDisplay();
-});
+// // call init on page load
+// window.addEventListener("load", () => {
+//   initLightDisplay();
+// });
 
 function resolveInputToValue(input) {
   const trimmed = input.trim();

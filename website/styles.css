@@ -65,7 +65,7 @@
 }
 
 .createProject{
-    background-color: hsl(120, 100%, 49%);
+    background-color: hsl(120, 100%, 35%);
     color: white;
     border-radius: 10vh;
     padding-top: 2vh;
@@ -82,7 +82,7 @@
 }
 
 .createProject:hover{
-    background-color: hsl(120, 100%, 35%)
+    background-color: hsl(120, 100%, 23%)
 }
 
 #title{

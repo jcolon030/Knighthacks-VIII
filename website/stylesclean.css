@@ -98,6 +98,7 @@ header {
   display: flex;
   flex-direction: column;
   gap: 1.5vh;
+  padding-top: 5vh;
 }
 
 #lightDisplayContainer {
@@ -173,18 +174,18 @@ header {
 
 #clearButton:hover,
 #execute:hover,
-#tutorialbutton:hover { background-color: hsl(0, 0%, 67%); transform: scale(1.05); }
+#tutorialbutton:hover { background-color: hsl(0, 0%, 67%); transform: scale(1.05); cursor: pointer;}
 
 #tutorialbutton {
   position: absolute;
-  top: 0.7vh;
-  right: 12.5vh;
+  top: 15vh;
+  right: 43vh;
   border-radius: 100%;
 }
 
-#clearButton { position: absolute; top: 0.9vh; right: 4vh; }
+#clearButton { position: absolute; top: 15vh; left: 50vh; }
 
-#execute { align-self: flex-end; margin-top: 1vh; }
+#execute { position: absolute; top: 15vh; right: 32vh; }
 
 /* =========================
    Variables Panel
@@ -370,28 +371,4 @@ header {
 
 #closeTutorial {
     display: none;
-}
-
-/* Light display */
-
-#lightDisplayContainer {
-  display: flex;
-  flex-wrap: wrap;
-  border: 1px solid #ccc;
-  gap: 0;
-  justify-content: space-evenly;
-  height: 50vh;
-  width: 60vh;
-}
-
-.led {
-  width: 3vh;
-  height: 3vh;
-  margin-left: 2.3vh;
-  margin-right: 2.3vh;
-  margin-top: 0;
-  margin-bottom: 0;
-  background-color: #000; /* default off */
-  border-radius: 4px;
-  box-shadow: 0 0 2px #333;
 }
