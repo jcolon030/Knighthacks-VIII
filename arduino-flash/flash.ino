@@ -44,7 +44,12 @@ void handleLine(const String& ln) {
     } break;
 
     case 'Z': { // clear all
-      strip.clear();
+      int s=0, e=99;
+      if (s<0) s=0; if (e>=NUM_LEDS) e=NUM_LEDS-1;
+      if (e >= s) {
+        for (int i=s; i<=e; i++) strip.setPixelColor(i, strip.Color(0,0,0));
+      }
+      strip.show();
       ok();
     } break;
 
