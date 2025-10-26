@@ -6,20 +6,35 @@
 let blocks = [];
 let variables = {}; // Store int variables
 
-const SUPABASE_URL = "ENTER-URL";
-const SUPABASE_ANON_KEY = "ENTER-API-KEY";
-
+// app.js
+const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
+const SUPABASE_ANON_KEY = "YOUR_PUBLIC_ANON_KEY";   // anon/public key
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-async function saveCommands(deviceId, commands) {
-  const { error } = await sb
+// enqueue next commands_N for a device
+async function enqueueProgram(deviceId, commands) {
+  // 1) Find current max N
+  const { data, error } = await sb
     .from("programs")
-    .upsert(
-      { device_id: deviceId, name: "commands_1", commands, updated_at: new Date().toISOString() },
-      { onConflict: "device_id,name" }
-    );
-  if (error) console.error("saveCommands error:", error);
-  else console.log("Saved commands_1");
+    .select("n")
+    .eq("device_id", deviceId)
+    .like("name", "commands_%");
+
+  if (error) { console.error("select n error:", error); return; }
+  const nextN = (data?.reduce((m, r) => Math.max(m, r?.n ?? 0), 0) || 0) + 1;
+  const name = `commands_${nextN}`;
+
+  // 2) Insert pending row
+  const { error: insErr } = await sb.from("programs").insert({
+    device_id: deviceId,
+    name,
+    commands,                 // array of strings
+    status: "pending",
+    updated_at: new Date().toISOString()
+  });
+
+  if (insErr) console.error("insert error:", insErr);
+  else console.log("Enqueued", name);
 }
 
 function getKeyByValue(obj, value) {
@@ -327,13 +342,13 @@ function executeScript() {
     }
   });
 
-  saveCommands("my-arduino-1", [
+  enqueueProgram("Arduino Nano", [
   "C 0 0 8 8 7",
   "W,1000",
   "F,4,4,0,255,0",
   "W,1000",
   "C"
-   ]);
+]);
 
   console.log("Blocks to export:", blocks);
 }
