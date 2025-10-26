@@ -29,8 +29,8 @@ Light Hacks enables anyone to design and control custom light displays without n
 
 ## Tech Stack  
 - **Frontend:** HTML, CSS, JavaScript — interactive UI for building light scenes  
-- **Backend & Database:** (Specify details – e.g. Node.js + Express, Python Flask, MongoDB or SQLite)  
-- **Hardware / Firmware:** (Specify microcontroller etc, e.g. Arduino / ESP32, C++ firmware)  
+- **Backend & Database:** Supabase
+- **Hardware / Firmware:** Arduino Nano 
 - **Other tools:** (List any build tools, bundlers, frameworks, libraries)  
 
 ---
