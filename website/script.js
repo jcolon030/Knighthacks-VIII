@@ -6,9 +6,11 @@
 let blocks = [];
 let variables = {}; // Store int variables
 
+let finalCommands = [];
+
 // app.js
-const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
-const SUPABASE_ANON_KEY = "YOUR_PUBLIC_ANON_KEY";   // anon/public key
+const SUPABASE_URL = "https://rjcspfjnhadhodecleht.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJqY3NwZmpuaGFkaG9kZWNsZWh0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NDc5MDUsImV4cCI6MjA3NzAyMzkwNX0.YXpOzWNu9wUH6htpXHyAwBaZecqXwFXszmq2ihU1ENw";   // anon/public key
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // enqueue next commands_N for a device
@@ -77,7 +79,6 @@ function resolveValue(val) {
   return val;
 }
 
-
 // ======================
 // Block Generators
 // ======================
@@ -88,10 +89,14 @@ const BLOCK_GENERATORS = {
 
     // Single lightID (number or variable name)
     if (lightIDs.length == 1) {
+          finalCommands.push(`L, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[0]) - 1).toString()}, ${r}, ${g}, ${b}`);
+          console.log(finalCommands);
           console.log(`L, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[0]) - 1).toString()}, ${r}, ${g}, ${b}`);
           return `L, ${variables[`${getKeyByValue(variables, lightIDs[0])}`]}, ${variables[`${getKeyByValue(variables, lightIDs[0])}`]}, ${r}, ${g}, ${b}`;
       }
     // Multiple lightID (number)
+    finalCommands.push(`L, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}, ${r}, ${g}, ${b}`);
+    console.log(typeof finalCommands);
     console.log(`L, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}, ${r}, ${g}, ${b}`);
     return `L, ${(parseInt(lightIDs[0]) - 1).toString()}, ${(parseInt(lightIDs[lightIDs.length - 1]) - 1).toString()}, ${r}, ${g}, ${b}`; // "L, int, int, R, G, B"
   },
@@ -311,44 +316,62 @@ function executeScript() {
     else if (el.classList.contains("turnOffBlock")) {
       let pinInput = el.querySelector(".turnOffBlockPinNum").value.trim();
       let pin = resolveInputToValue(pinInput);
+      let pinArray = pin.toString().split(",");
       console.log(`${pinInput} variable was found -> value: ${pin}`);
-      // ✅ Don’t skip pin=0, only skip empty input
-      if (pinInput !== "") blocks.push(new CodeBlock("turnOff", pin.toString().split(","), "#000000"));
+      if (pinArray.length > 1) {
+        finalCommands.push(`C, ${(parseInt(pinArray[0]) - 1).toString()}, ${(parseInt(pinArray[0]) - 1).toString()}`);
+      }
+      else {
+        finalCommands.push(`C, ${(parseInt(pinArray[0]) - 1).toString()}, ${(parseInt(pinArray[pinArray.length - 1]) - 1).toString()}`);
+      }
+      if (pinInput !== "") blocks.push(new CodeBlock("turnOff", pinArray, "#000000"));
     }
 
     else if (el.classList.contains("setColorBlock")) {
       let pinInput = el.querySelector(".setColorBlockPinNum").value.trim();
       let color = el.querySelector(".setColorBlockColorInput").value;
       let pin = resolveInputToValue(pinInput);
-      if (pinInput !== "" && color) blocks.push(new CodeBlock("light", pin.toString().split(","), color));
+      const { r, g, b } = parseColor(color || "#00FF00");
+      let pinArray = pin.toString().split(",");
+      if (pinArray.length > 1) {
+        finalCommands.push(`L, ${(parseInt(pinArray[0]) - 1).toString()}, ${(parseInt(pinArray[0]) - 1).toString()}, ${r}, ${g}, ${b}`);
+      }
+      else {
+        finalCommands.push(`L, ${(parseInt(pinArray[0]) - 1).toString()}, ${(parseInt(pinArray[pinArray.length - 1]) - 1).toString()}, ${r}, ${g}, ${b}`);
+      }
+      if (pinInput !== "" && color) blocks.push(new CodeBlock("light", pinArray, color));
     }
 
     else if (el.classList.contains("setBrightnessBlock")) {
       let pinInput = el.querySelector(".setBrightnessBlockPinNum").value.trim();
       let pin = resolveInputToValue(pinInput);
+      let pinArray = pin.toString().split(",");
       let brightness = el.querySelector(".setBrightnessBlockBrightnessInput").value;
       console.log(`Pre CodeBlock: ${brightness}`)
-      blocks.push(new CodeBlock("setBrightness", pin.toString().split(","), "#000000", { brightness }));
+      if (pinArray.length > 1) {
+        finalCommands.push(`B, ${(parseInt(pinArray[0]) - 1).toString()}, ${(parseInt(pinArray[0]) - 1).toString()}, ${parseBrightness(parseInt(brightness)).toString()}`);
+      }
+      else {
+        finalCommands.push(`B, ${(parseInt(pinArray[0]) - 1).toString()}, ${(parseInt(pinArray[pinArray.length - 1]) - 1).toString()}, ${parseBrightness(parseInt(brightness)).toString()}`);
+      }
+      blocks.push(new CodeBlock("setBrightness", pinArray, "#000000", { brightness }));
     }
 
     else if (el.classList.contains("delayBlock")) {
       const ms = el.querySelector(".delayBlockTime").value;
+      finalCommands.push(`D, ${resolveValue(ms)}`);
       if (ms) blocks.push(new CodeBlock("delay", [], "#000000", { ms }));
     }
 
     else if(el.classList.contains("updateBlock")){
       console.log("found");
+      finalCommands.push(`S`);
       blocks.push(new CodeBlock("update", [], "#000000"));
     }
   });
 
-  enqueueProgram("Arduino Nano", [
-  "C 0 0 8 8 7",
-  "W,1000",
-  "F,4,4,0,255,0",
-  "W,1000",
-  "C"
-]);
+  enqueueProgram("Arduino Nano", finalCommands);
+  finalCommands = [];
 
   console.log("Blocks to export:", blocks);
 }
