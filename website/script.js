@@ -3,7 +3,6 @@ let blocks = [];
 let variables = {}; // Stores integer variables by name
 let variablesStartingValues = [];
 let finalCommands = [];
-let loopedCommands = [];
 let timesToRepeat = 1;
 let currentIteration = 0;
 
@@ -260,7 +259,7 @@ function createVariable() {
 // Render variables to a list element
 function renderVariables() {
   const list = document.getElementById('variablesList');
-  list.innerHTML = '';
+  list.innerHTML = '<p id="variablesHelper">Variable starting values:</p>';
   Object.keys(variables).forEach(name => {
     const li = document.createElement('li');
     li.textContent = `${name} = ${variables[name]}`;

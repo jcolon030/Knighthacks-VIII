@@ -218,6 +218,14 @@ header {
   box-shadow: -1vh 0 2vh hsla(0, 0%, 0%, 0.55);
 }
 
+#variablesHelper{
+  margin-top: 0;
+  font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  background-color: var(--panelHover);
+  padding: 1.5vh;
+  border-radius: 1vh;
+}
+
 #variablesPanel h3 {
   margin: 0;
   font-size: 2.5vh;
