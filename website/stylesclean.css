@@ -179,7 +179,9 @@ header {
 
 #clearButton,
 #execute,
-#tutorialbutton {
+#tutorialbutton,
+#saveButton,
+#loadButton {
   border: none;
   border-radius: 1vh;
   transition: background-color 0.25s, transform 0.15s;
@@ -190,7 +192,9 @@ header {
 
 #clearButton:hover,
 #execute:hover,
-#tutorialbutton:hover { background-color: hsl(0, 0%, 67%); transform: scale(1.05); cursor: pointer;}
+#tutorialbutton:hover,
+#saveButton:hover,
+#loadButton:hover { background-color: hsl(0, 0%, 67%); transform: scale(1.05); cursor: pointer;}
 
 #tutorialbutton {
   position: absolute;
@@ -202,6 +206,10 @@ header {
 #clearButton { position: absolute; top: 15vh; left: 50vh; }
 
 #execute { position: absolute; top: 15vh; right: 32vh; }
+
+#saveButton {position: absolute; top: 15vh; right: 43vh; }
+
+#loadButton {position: absolute; top: 15vh; right: 50.5vh; }
 
 /* =========================
    Variables Panel

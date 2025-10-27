@@ -18,7 +18,6 @@ else{
 }
 
 
-
 // ---------------------------------------------
 // Supabase client (browser-side; uses anon key)
 // NOTE: These are restricted keys, so they can stay.
@@ -364,6 +363,9 @@ function executeScript() {
     else if (el.classList.contains("turnOffBlock")) {
       let pinInput = el.querySelector(".turnOffBlockPinNum").value.trim();
       let pin = resolveInputToValue(pinInput);
+      if(isNaN(pin)){
+        window.alert(`ERROR\nVARIABLE \"${pinInput}\" IS UNDEFINED`);
+      }
       let pinArray = pin.toString().split(",");
       if (pinArray.length == 1) {
         finalCommands.push(`C, ${Math.abs(((parseInt(pinArray[0]) - 1)%NUM_LIGHTS)).toString()}, ${Math.abs(((parseInt(pinArray[0]) - 1)%NUM_LIGHTS)).toString()}`);
@@ -378,6 +380,9 @@ function executeScript() {
       let pinInput = el.querySelector(".setColorBlockPinNum").value.trim();
       let color = el.querySelector(".setColorBlockColorInput").value;
       let pin = resolveInputToValue(pinInput);
+      if(isNaN(pin)){
+        window.alert(`ERROR\nVARIABLE \"${pinInput}\" IS UNDEFINED`);
+      }
       const { r, g, b } = parseColor(color || "#00FF00");
       let pinArray = pin.toString().split(",");
       if (pinArray.length == 1) {
@@ -392,6 +397,9 @@ function executeScript() {
     else if (el.classList.contains("setBrightnessBlock")) {
       let pinInput = el.querySelector(".setBrightnessBlockPinNum").value.trim();
       let pin = resolveInputToValue(pinInput);
+      if(isNaN(pin)){
+        window.alert(`ERROR\nVARIABLE \"${pinInput}\" IS UNDEFINED`);
+      }
       let pinArray = pin.toString().split(",");
       let brightness = el.querySelector(".setBrightnessBlockBrightnessInput").value;
       if (pinArray.length == 1) {
@@ -405,6 +413,9 @@ function executeScript() {
     // Delay block
     else if (el.classList.contains("delayBlock")) {
       const ms = el.querySelector(".delayBlockTime").value;
+      if(isNaN(resolveValue(ms))){
+        window.alert(`ERROR\nVARIABLE \"${ms}\" IS UNDEFINED`);
+      }
       finalCommands.push(`D, ${Math.abs(resolveValue(ms))}`);
       if (ms) blocks.push(new CodeBlock("delay", [], "#000000", { ms }));
     }
@@ -596,7 +607,9 @@ function clearButton() {
   console.log("Clearing");
   timesToRepeat = 1;
   currentIteration = 0;
-  blockSpace.innerHTML = '<button id="execute" onclick="executeRepeatedly()">Execute</button>';
+  blockSpace.innerHTML = `<button id="execute" onclick="executeRepeatedly()">Execute</button>
+    <button id="saveButton" onclick="saveScript()">Save</button>
+    <button id="loadButton" onclick="loadScript()">Load</button>`;
   blocks = [];
 }
 
@@ -608,4 +621,57 @@ function resolveInputToValue(input) {
   if (trimmed === "") return "";
   if (variables[trimmed] !== undefined) return variables[trimmed];
   return Number(trimmed) || trimmed;
+}
+
+function saveScript(){
+  let inputsArray = Array.from(
+    document.querySelectorAll("#blockSpace input")
+  ).map(input => input.value);
+
+  let textContentDownload = document.getElementById("blockSpace").innerHTML;
+  let combinedTextContent = textContentDownload + "\n<!--INPUTS:" + JSON.stringify(inputsArray) + "-->";
+
+  const tempElement = document.createElement('a');
+  tempElement.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(combinedTextContent));
+  tempElement.setAttribute('download', `Light_Hacks_Script_${Date.now()}.txt`);
+  tempElement.style.display = 'none';
+  document.body.appendChild(tempElement);
+  tempElement.click();
+  document.body.removeChild(tempElement);
+
+  //console.log(`\ninputsArray: ${inputsArray}`);
+}
+
+function loadScript(){
+  let input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.txt';
+
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = event => {
+      const fileContent = event.target.result;
+      console.log("Loaded script content:\n", fileContent);
+
+      const [htmlPart, inputsPart] = fileContent.split('<!--INPUTS:');
+      const inputsJSON = inputsPart?.split('-->')[0];
+      const inputsArray = JSON.parse(inputsJSON || "[]");
+
+      document.getElementById("blockSpace").innerHTML = htmlPart;
+
+      const inputs = document.querySelectorAll("#blockSpace input");
+      inputs.forEach((input, i) => {
+        if (inputsArray[i] !== undefined) {
+          input.value = inputsArray[i];
+        }
+      });
+
+    };
+    reader.readAsText(file);
+  };
+
+  input.click();
 }
