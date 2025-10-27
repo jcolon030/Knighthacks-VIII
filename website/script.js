@@ -6,13 +6,18 @@ let finalCommands = [];
 let timesToRepeat = 1;
 let currentIteration = 0;
 
-let NUM_LIGHTS = Number(window.prompt("How many lights are you using?"));
-
-
-if(NUM_LIGHTS == null || NUM_LIGHTS < 1 || isNaN(NUM_LIGHTS)){
-  window.alert("NUM_LIGHTS is invalid (Either null, NaN, or negative).\nDefaulting to 100.");
+if(document.title == 'Light Hacks Workspace'){
+    let NUM_LIGHTS = Number(window.prompt("How many lights are you using?"));
+    if(NUM_LIGHTS == null || NUM_LIGHTS < 1 || isNaN(NUM_LIGHTS)){
+      window.alert("NUM_LIGHTS is invalid (Either null, NaN, or negative).\nDefaulting to 100.");
+      NUM_LIGHTS = 100;
+  }
+}
+else{
   NUM_LIGHTS = 100;
 }
+
+
 
 // ---------------------------------------------
 // Supabase client (browser-side; uses anon key)
@@ -262,6 +267,10 @@ function createVariable() {
   variablesStartingValues.push(tempVal);
   renderVariables();
   nameInput.value = '';
+  let numselects = document.getElementsByClassName("varSelect").length;
+  for(let i = 0; i < numselects; i++){
+    populateVarSelect(document.getElementsByClassName("varSelect").item(i));
+  }
 }
 
 // Render variables to a list element

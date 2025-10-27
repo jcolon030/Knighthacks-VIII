@@ -312,7 +312,8 @@ header {
 .setVarBlock input,
 .changeVarBlock input,
 .multiplyVarBlock input,
-.divideVarBlock input {
+.divideVarBlock input,
+select {
   width: 7vh;
   border-radius: 0.5vh;
   border: none;
