@@ -2,6 +2,9 @@
 let blocks = [];
 let variables = {}; // Stores integer variables by name
 let finalCommands = [];
+let loopedCommands = [];
+let timesToRepeat = 1;
+let currentIteration = 0;
 
 // ---------------------------------------------
 // Supabase client (browser-side; uses anon key)
@@ -10,6 +13,17 @@ let finalCommands = [];
 const SUPABASE_URL = "https://rjcspfjnhadhodecleht.supabase.co/"; 
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJqY3NwZmpuaGFkaG9kZWNsZWh0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE0NDc5MDUsImV4cCI6MjA3NzAyMzkwNX0.YXpOzWNu9wUH6htpXHyAwBaZecqXwFXszmq2ihU1ENw"; // public anon key
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function getRepeatNum(){
+  let inputTextField = document.getElementById("blockSpace").querySelector(".repeatBlockInput");
+
+  if(inputTextField){
+    return inputTextField.value;
+  }
+  else{
+    return 1;
+  }
+}
 
 // ---------------------------------------------
 // Enqueue a new commands_N row for a device
@@ -232,7 +246,7 @@ function createVariable() {
   const name = nameInput.value.trim();
   if (!name) return alert("Enter a variable name");
   if (variables[name] !== undefined) return alert("Variable already exists");
-  variables[name] = 1;
+  variables[name] = parseInt(window.prompt("Enter a starting value for your variable"));
   renderVariables();
   nameInput.value = '';
 }
@@ -270,9 +284,18 @@ function populateVarSelect(select) {
 // Walk the UI blocks, build CodeBlock objects, and emit command strings
 // ======================
 
+function executeRepeatedly(){
+  currentIteration = 0;
+  timesToRepeat = getRepeatNum();
+  console.log(`running executeScript ${timesToRepeat} times`);
+  for(let i = 0; i < timesToRepeat; i++){
+    executeScript();
+  }
+}
+
 function executeScript() {
-  console.log("Executing blocks...");
   blocks = []; // clear previous run
+  currentIteration++;
 
   const blockElements = blockSpace.querySelectorAll(
     ".setColorBlock, .turnOffBlock, .setBrightnessBlock, .delayBlock, .setVarBlock, .incVarBlock, .changeVarBlock, .updateBlock, .setAllColorBlock, .turnOffAllBlock, .rainbowBlock"
@@ -381,16 +404,23 @@ function executeScript() {
     }
   });
 
-  // Enqueue built commands for processing by the backend bridge
-  enqueueProgram("Arduino Nano", finalCommands);
+  //Send to backend if on last iteration
 
-  // Debug output
-  console.log(finalCommands);
+  if(currentIteration == getRepeatNum()){
+    // Enqueue built commands for processing by the backend bridge
 
-  // Reset the command buffer after enqueue
-  finalCommands = [];
+    //UNCOMMENT THIS WHEN BACKEND IS RUNNING OR ELSE NOTHING WILL WORK
+    //enqueueProgram("Arduino Nano", finalCommands);
 
-  console.log("Blocks to export:", blocks);
+    // Debug output
+    console.log("Sending commands to backend: \n", finalCommands);
+
+    // Reset the command buffer after enqueue
+    finalCommands = [];
+    currentIteration = 0;
+  }
+
+  //console.log("Blocks to export:", blocks);
 }
 
 // ======================
@@ -468,6 +498,10 @@ blockSpace.addEventListener('drop', e => {
     newBlock.innerHTML = 'rainbow preset';
     newBlock.style.width = '30vh';
   }
+  else if (className.includes('repeatBlock')){
+    newBlock.innerHTML = 'repeat this script <input class="repeatBlockInput" placeholder="num" style="width:5vh;"> times';
+    newBlock.style.width = '50vh';
+  }
 
   blockSpace.appendChild(newBlock);
 });
@@ -508,7 +542,10 @@ document.getElementById('createVarBtn').addEventListener('click', createVariable
 
 // Clear the workspace and reset blocks
 function clearButton() {
-  blockSpace.innerHTML = '<button id="execute" onclick="executeScript()">Execute</button>';
+  console.log("Clearing");
+  timesToRepeat = 1;
+  currentIteration = 0;
+  blockSpace.innerHTML = '<button id="execute" onclick="executeRepeatedly()">Execute</button>';
   blocks = [];
 }
 

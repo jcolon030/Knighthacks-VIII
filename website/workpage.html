@@ -56,6 +56,10 @@
                 wait <input class="delayBlockTime" placeholder="ms">
             </span>
 
+            <span class="repeatBlock" draggable="true">
+                repeat this script
+            </span>
+
             <!-- Set Variable Block -->
             <span class="setVarBlock" draggable="true">
             set <input class="setVarBlockName" placeholder="variable"> = 
@@ -130,7 +134,7 @@
 
         <!-- Workspace -->
         <div id="blockSpace">
-            <button id="execute" onclick="executeScript()">Execute</button>
+            <button id="execute" onclick="executeRepeatedly()">Execute</button>
         </div>
 
         <!-- Variables panel -->

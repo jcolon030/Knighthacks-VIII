@@ -126,7 +126,8 @@ header {
 .updateBlock,
 .setAllColorBlock,
 .turnOffAllBlock,
-.rainbowBlock {
+.rainbowBlock,
+.repeatBlock {
   display: flex;
   align-items: center;
   gap: 1vh;
@@ -147,8 +148,8 @@ header {
 .setBrightnessBlock { background-color: hsl(120, 65%, 55%); }
 .setBrightnessBlock:hover { background-color: hsl(120, 65%, 40%); transform: scale(1.05); }
 
-.delayBlock { background-color: hsl(45, 90%, 60%); }
-.delayBlock:hover { background-color: hsl(45, 90%, 50%); transform: scale(1.05); }
+.delayBlock, .repeatBlock { background-color: hsl(45, 90%, 60%); }
+.delayBlock:hover, .repeatBlock:hover { background-color: hsl(45, 90%, 50%); transform: scale(1.05); }
 
 .updateBlock {background-color: hsl(0, 0%, 50%);}
 .updateBlock:hover {background-color: hsl(0, 0%, 40%); transform: scale(1.05);}
@@ -160,7 +161,8 @@ header {
 .turnOffBlock input,
 .setBrightnessBlock input,
 .delayBlock input,
-.setAllColorBlock input {
+.setAllColorBlock input,
+.repeatBlock input {
   width: 5vh;
   border-radius: 0.5vh;
   border: none;
