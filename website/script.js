@@ -6,6 +6,14 @@ let finalCommands = [];
 let timesToRepeat = 1;
 let currentIteration = 0;
 
+let NUM_LIGHTS = Number(window.prompt("How many lights are you using?"));
+
+
+if(NUM_LIGHTS == null || NUM_LIGHTS < 1 || isNaN(NUM_LIGHTS)){
+  window.alert("NUM_LIGHTS is invalid (Either null, NaN, or negative).\nDefaulting to 100.");
+  NUM_LIGHTS = 100;
+}
+
 // ---------------------------------------------
 // Supabase client (browser-side; uses anon key)
 // NOTE: These are restricted keys, so they can stay.
@@ -348,11 +356,10 @@ function executeScript() {
       let pinInput = el.querySelector(".turnOffBlockPinNum").value.trim();
       let pin = resolveInputToValue(pinInput);
       let pinArray = pin.toString().split(",");
-      console.log(`${pinInput} variable was found -> value: ${pin}`);
       if (pinArray.length == 1) {
-        finalCommands.push(`C, ${(parseInt(pinArray[0]) - 1).toString()}, ${(parseInt(pinArray[0]) - 1).toString()}`);
+        finalCommands.push(`C, ${Math.abs(((parseInt(pinArray[0]) - 1)%NUM_LIGHTS)).toString()}, ${Math.abs(((parseInt(pinArray[0]) - 1)%NUM_LIGHTS)).toString()}`);
       } else {
-        finalCommands.push(`C, ${(parseInt(pinArray[0]) - 1).toString()}, ${(parseInt(pinArray[pinArray.length - 1]) - 1).toString()}`);
+        finalCommands.push(`C, ${Math.abs(((parseInt(pinArray[0]) - 1)%NUM_LIGHTS)).toString()}, ${Math.abs(((parseInt(pinArray[pinArray.length - 1])%NUM_LIGHTS) - 1)).toString()}`);
       }
       if (pinInput !== "") blocks.push(new CodeBlock("turnOff", pinArray, "#000000"));
     }
@@ -365,9 +372,9 @@ function executeScript() {
       const { r, g, b } = parseColor(color || "#00FF00");
       let pinArray = pin.toString().split(",");
       if (pinArray.length == 1) {
-        finalCommands.push(`L, ${(parseInt(pinArray[0]) - 1).toString()}, ${(parseInt(pinArray[0]) - 1).toString()}, ${r}, ${g}, ${b}`);
+        finalCommands.push(`L, ${Math.abs(((parseInt(pinArray[0]) - 1)%NUM_LIGHTS)).toString()}, ${Math.abs(((parseInt(pinArray[0]) - 1)%NUM_LIGHTS)).toString()}, ${r}, ${g}, ${b}`);
       } else {
-        finalCommands.push(`L, ${(parseInt(pinArray[0]) - 1).toString()}, ${(parseInt(pinArray[pinArray.length - 1]) - 1).toString()}, ${r}, ${g}, ${b}`);
+        finalCommands.push(`L, ${Math.abs(((parseInt(pinArray[0]) - 1)%NUM_LIGHTS)).toString()}, ${Math.abs(((parseInt(pinArray[pinArray.length - 1]) - 1)%NUM_LIGHTS)).toString()}, ${r}, ${g}, ${b}`);
       }
       if (pinInput !== "" && color) blocks.push(new CodeBlock("light", pinArray, color));
     }
@@ -378,11 +385,10 @@ function executeScript() {
       let pin = resolveInputToValue(pinInput);
       let pinArray = pin.toString().split(",");
       let brightness = el.querySelector(".setBrightnessBlockBrightnessInput").value;
-      console.log(`Pre CodeBlock: ${brightness}`);
       if (pinArray.length == 1) {
-        finalCommands.push(`B, ${(parseInt(pinArray[0]) - 1).toString()}, ${(parseInt(pinArray[0]) - 1).toString()}, ${parseBrightness(parseInt(brightness)).toString()}`);
+        finalCommands.push(`B, ${Math.abs(((parseInt(pinArray[0]) - 1)%NUM_LIGHTS)).toString()}, ${Math.abs(((parseInt(pinArray[0]) - 1)%NUM_LIGHTS)).toString()}, ${parseBrightness(parseInt(brightness)).toString()}`);
       } else {
-        finalCommands.push(`B, ${(parseInt(pinArray[0]) - 1).toString()}, ${(parseInt(pinArray[pinArray.length - 1]) - 1).toString()}, ${parseBrightness(parseInt(brightness)).toString()}`);
+        finalCommands.push(`B, ${Math.abs(((parseInt(pinArray[0]) - 1)%NUM_LIGHTS)).toString()}, ${Math.abs(((parseInt(pinArray[pinArray.length - 1]) - 1)%NUM_LIGHTS)).toString()}, ${parseBrightness(parseInt(brightness)).toString()}`);
       }
       blocks.push(new CodeBlock("setBrightness", pinArray, "#000000", { brightness }));
     }
@@ -390,7 +396,7 @@ function executeScript() {
     // Delay block
     else if (el.classList.contains("delayBlock")) {
       const ms = el.querySelector(".delayBlockTime").value;
-      finalCommands.push(`D, ${resolveValue(ms)}`);
+      finalCommands.push(`D, ${Math.abs(resolveValue(ms))}`);
       if (ms) blocks.push(new CodeBlock("delay", [], "#000000", { ms }));
     }
 
