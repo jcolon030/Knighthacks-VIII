@@ -48,10 +48,6 @@
                 setBrightness <input class="setBrightnessBlockBrightnessInput" placeholder="%">
             </span>
 
-            <span class="rainbowBlock" draggable="true">
-                rainbow preset
-            </span>
-
             <span class="delayBlock" draggable="true">
                 wait <input class="delayBlockTime" placeholder="ms">
             </span>
@@ -62,18 +58,34 @@
 
             <!-- Set Variable Block -->
             <span class="setVarBlock" draggable="true">
-            set <input class="setVarBlockName" placeholder="variable"> = 
-            <input class="setVarBlockValue" placeholder="value">
+                set <input class="setVarBlockName" placeholder="variable"> = 
+                <input class="setVarBlockValue" placeholder="value">
             </span>
 
             <!-- Change Variable Block -->
             <span class="changeVarBlock" draggable="true">
-            change <input class="changeVarBlockName" placeholder="variable"> by 
-            <input class="changeVarBlockValue" placeholder="value">
+                +/- <input class="changeVarBlockName" placeholder="variable"> by 
+                <input class="changeVarBlockValue" placeholder="value">
+            </span>
+
+            <!-- Multiply Variable Block -->
+             <span class="multiplyVarBlock" draggable="true">
+                multiply <input class="multiplyVarBlockName" placeholder="variable"> by
+                <input class="multiplyVarBlockValue" placeholder="value">
+             </span>
+
+             <!-- Divide Variable Block -->
+            <span class="divideVarBlock" draggable="true">
+                divide <input class="divideVarBlockName" placeholder="variable"> by
+                <input class="divideVarBlockName" placeholder="value">
+            </span>
+
+            <span class="rainbowBlock" draggable="true">
+                rainbow preset
             </span>
 
             <!-- Update Block -->
-            <span class="updateBlock" draggable="false">
+            <span class="updateBlock" draggable="true">
                 update
             </span>
 

@@ -1,6 +1,7 @@
 // In-memory program and variable stores
 let blocks = [];
 let variables = {}; // Stores integer variables by name
+let variablesStartingValues = [];
 let finalCommands = [];
 let loopedCommands = [];
 let timesToRepeat = 1;
@@ -240,13 +241,18 @@ class CodeBlock {
 // Variables UI helpers
 // ======================
 
-// Create a new variable with default value 1
+// Create a new variable with user entered value
 function createVariable() {
   const nameInput = document.getElementById('newVarName');
   const name = nameInput.value.trim();
   if (!name) return alert("Enter a variable name");
   if (variables[name] !== undefined) return alert("Variable already exists");
-  variables[name] = parseInt(window.prompt("Enter a starting value for your variable"));
+  let tempVal;
+  do{
+    tempVal = parseInt(window.prompt("Enter a starting value for your variable"));
+  } while(isNaN(tempVal));
+  variables[name] = tempVal;
+  variablesStartingValues.push(tempVal);
   renderVariables();
   nameInput.value = '';
 }
@@ -298,7 +304,7 @@ function executeScript() {
   currentIteration++;
 
   const blockElements = blockSpace.querySelectorAll(
-    ".setColorBlock, .turnOffBlock, .setBrightnessBlock, .delayBlock, .setVarBlock, .incVarBlock, .changeVarBlock, .updateBlock, .setAllColorBlock, .turnOffAllBlock, .rainbowBlock"
+    ".setColorBlock, .turnOffBlock, .setBrightnessBlock, .delayBlock, .setVarBlock, .incVarBlock, .changeVarBlock, .multiplyVarBlock, .divideVarBlock, .updateBlock, .setAllColorBlock, .turnOffAllBlock, .rainbowBlock"
   );
 
   blockElements.forEach(el => {
@@ -316,6 +322,18 @@ function executeScript() {
       const value = resolveInputToValue(el.querySelector('.varValueInput').value);
       variables[varName] += Number(value); // increment immediately
       blocks.push(new CodeBlock("incVar", [], "#FFFFFF", { varName, value }));
+    }
+
+    else if (el.classList.contains("multiplyVarBlock")){
+      const varName = el.querySelector('.varSelect').value;
+      const value = resolveInputToValue(el.querySelector('.varValueInput').value);
+      variables[varName] *= Number(value);
+    }
+
+    else if (el.classList.contains("divideVarBlock")){
+      const varName = el.querySelector('.varSelect').value;
+      const value = resolveInputToValue(el.querySelector('.varValueInput').value);
+      variables[varName] /= Number(value);
     }
 
     // Change variable by a value (same as increment here)
@@ -418,6 +436,15 @@ function executeScript() {
     // Reset the command buffer after enqueue
     finalCommands = [];
     currentIteration = 0;
+
+    let i = 0;
+    //Set variables back to their starting values
+    console.log("Resetting variables back to their starting values...\n");
+    for (let key in variables) {
+      variables[key] = variablesStartingValues[i];
+      i++;
+    }
+
   }
 
   //console.log("Blocks to export:", blocks);
@@ -479,7 +506,7 @@ blockSpace.addEventListener('drop', e => {
     newBlock.style.width = '30vh';
     newBlock.innerHTML = className.includes('setVarBlock')
       ? 'set <select class="varSelect"></select> = <input class="varValueInput" placeholder="value">'
-      : 'change <select class="varSelect"></select> by <input class="varValueInput" placeholder="value">';
+      : '+/- <select class="varSelect"></select> by <input class="varValueInput" placeholder="value">';
     newBlock.querySelectorAll('.varSelect').forEach(populateVarSelect);
   }
   else if (className.includes('updateBlock')) {
@@ -501,6 +528,16 @@ blockSpace.addEventListener('drop', e => {
   else if (className.includes('repeatBlock')){
     newBlock.innerHTML = 'repeat this script <input class="repeatBlockInput" placeholder="num" style="width:5vh;"> times';
     newBlock.style.width = '50vh';
+  }
+  else if(className.includes('multiplyVarBlock')){
+    newBlock.innerHTML = 'multiply <select class="varSelect"></select> by <input class="varValueInput" placeholder="value">';
+    newBlock.style.width = '30vh';  
+    newBlock.querySelectorAll('.varSelect').forEach(populateVarSelect);
+  }
+  else if(className.includes('divideVarBlock')){
+    newBlock.innerHTML = 'divide <select class="varSelect"></select> by <input class="varValueInput" placeholder="value">';
+    newBlock.style.width = '30vh'
+    newBlock.querySelectorAll('.varSelect').forEach(populateVarSelect);
   }
 
   blockSpace.appendChild(newBlock);
