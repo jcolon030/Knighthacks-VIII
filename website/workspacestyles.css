@@ -97,8 +97,9 @@ header {
   padding: 2vh;
   display: flex;
   flex-direction: column;
-  gap: 1.5vh;
+  gap: 1vh;
   padding-top: 5vh;
+  padding-bottom: 0;
 }
 
 #lightDisplayContainer {
@@ -219,6 +220,7 @@ header {
 
 #variablesPanel {
   width: 25vh;
+  height: 100vh;
   background-color: var(--panelBg);
   color: white;
   padding: 2vh;

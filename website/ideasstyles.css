@@ -1,0 +1,78 @@
+@import url(https://db.onlinewebfonts.com/c/83e4a6b639612cd501853be5a7cf97ab?family=Trend+Sans+One+Regular);
+
+body{
+    background-image: url("images/ideasbg.jpg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+    background-size: cover;
+    background-blend-mode: multiply;
+    font-family: 'Trend Sans One Regular';
+}
+
+#ideas{
+    color: white;
+    text-shadow: 0 0 1.5vh white;
+    font-size: 10vh;
+    margin-left: 4vw;
+}
+
+.textContainer {
+    flex: 1;
+    text-align: center;
+    background-color: black;
+    padding: 2vh 1vw;
+    border-radius: 2vh;
+    box-shadow: 0 0 2vh white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#boxesContainer{
+    display: flex;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 4vw;
+    margin-left: 4vw;
+    width: 50vw;
+}
+
+p{
+    color: white;
+}
+
+.scriptContainers{
+    background-color: black;
+    padding: 2vh 1vw;
+    border-radius: 2vh;
+    box-shadow: 0 0 2vh white;
+    color: rgb(226, 255, 96);
+    margin-top: 5vh;
+    margin-left: 4vw;
+    display: inline-block;
+    width: 50vh;
+}
+
+.scriptContainers h3{
+    text-shadow: 0 0 0.5vh rgb(226, 255, 96);
+}
+
+.scriptContainers p{
+    font-family: Helvetica;
+}
+
+.scriptContainers a{
+    display: inline-block;
+    background-color: hsl(0, 0%, 79%);
+    text-decoration: none;
+    border-radius: 1vh;
+    padding: 1vh;
+    margin-top: 1vh;
+    transition: background-color 0.25s;
+    color: black;
+}
+
+.scriptContainers a:hover{
+    background-color: hsl(0, 0%, 65%);
+}
