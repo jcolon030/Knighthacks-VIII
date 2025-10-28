@@ -5,9 +5,10 @@ let variablesStartingValues = [];
 let finalCommands = [];
 let timesToRepeat = 1;
 let currentIteration = 0;
+let NUM_LIGHTS;
 
 if(document.title == 'Light Hacks Workspace'){
-    let NUM_LIGHTS = Number(window.prompt("How many lights are you using?"));
+    NUM_LIGHTS = Number(window.prompt("How many lights are you using?"));
     if(NUM_LIGHTS == null || NUM_LIGHTS < 1 || isNaN(NUM_LIGHTS)){
       window.alert("NUM_LIGHTS is invalid (Either null, NaN, or negative).\nDefaulting to 100.");
       NUM_LIGHTS = 100;
@@ -298,6 +299,41 @@ function populateVarSelect(select) {
     option.textContent = varName;
     select.appendChild(option);
   });
+
+  removeUndefinedChoices();
+}
+
+function removeUndefinedChoices(){
+  //Remove undefined from HTML select
+  document.querySelectorAll('select').forEach(select => {
+    [...select.options].forEach(option => {
+      if (
+        option.value === undefined ||
+        option.textContent === undefined ||
+        option.value === 'undefined' ||
+        option.textContent === 'undefined' ||
+        (option.value === '' && option.textContent.trim() === '')
+      ) {
+        option.remove();
+      }
+    });
+  });
+
+  //Remove undefined from JS object
+  for (const key in variables) {
+    if (variables[key] === undefined) {
+      delete variables[key];
+    }
+  }
+
+  //Remove undefined from HTML <ul>
+  const panel = document.querySelector('#variablesPanel ul');
+  panel.querySelectorAll('li').forEach(li =>{
+    const [name,value] = li.textContent.split("=").map(s=>s.trim());
+    if(variables[name] == undefined || value == undefined){
+      li.remove();
+    }
+  });
 }
 
 // ======================
@@ -305,18 +341,24 @@ function populateVarSelect(select) {
 // Walk the UI blocks, build CodeBlock objects, and emit command strings
 // ======================
 
+let isUndefined;
 function executeRepeatedly(){
+  isUndefined = false;
   currentIteration = 0;
   timesToRepeat = getRepeatNum();
   console.log(`running executeScript ${timesToRepeat} times`);
   for(let i = 0; i < timesToRepeat; i++){
     executeScript();
+    if(isUndefined){
+      window.alert(`ERROR\nUNDEFINED VARIABLE`);
+      break;
+    }
   }
 }
 
 function executeScript() {
-  blocks = []; // clear previous run
   currentIteration++;
+  blocks = []; // clear previous run
 
   const blockElements = blockSpace.querySelectorAll(
     ".setColorBlock, .turnOffBlock, .setBrightnessBlock, .delayBlock, .setVarBlock, .incVarBlock, .changeVarBlock, .multiplyVarBlock, .divideVarBlock, .updateBlock, .setAllColorBlock, .turnOffAllBlock, .rainbowBlock"
@@ -327,6 +369,9 @@ function executeScript() {
     if (el.classList.contains("setVarBlock")) {
       const varName = el.querySelector('.varSelect').value;
       const value = resolveInputToValue(el.querySelector('.varValueInput').value);
+      if(variables[varName] === undefined){
+        isUndefined = true;
+      }
       variables[varName] = Number(value); // update immediately
       blocks.push(new CodeBlock("setVar", [], "#FFFFFF", { varName, value }));
     }
@@ -336,6 +381,9 @@ function executeScript() {
       const varName = el.querySelector('.varSelect').value;
       const value = resolveInputToValue(el.querySelector('.varValueInput').value);
       variables[varName] += Number(value); // increment immediately
+      if(variables[varName] === undefined){
+        isUndefined = true;
+      }
       blocks.push(new CodeBlock("incVar", [], "#FFFFFF", { varName, value }));
     }
 
@@ -343,12 +391,18 @@ function executeScript() {
       const varName = el.querySelector('.varSelect').value;
       const value = resolveInputToValue(el.querySelector('.varValueInput').value);
       variables[varName] *= Number(value);
+      if(isNaN(variables[varName])){
+        isUndefined = true;
+      }
     }
 
     else if (el.classList.contains("divideVarBlock")){
       const varName = el.querySelector('.varSelect').value;
       const value = resolveInputToValue(el.querySelector('.varValueInput').value);
       variables[varName] /= Number(value);
+      if(isNaN(variables[varName])){
+        isUndefined = true;
+      }
     }
 
     // Change variable by a value (same as increment here)
@@ -357,6 +411,9 @@ function executeScript() {
       const value = resolveInputToValue(el.querySelector('.varValueInput').value);
       variables[varName] += Number(value);
       blocks.push(new CodeBlock("changeVar", [], "#FFFFFF", { varName, value }));
+      if(isNaN(variables[varName])){
+        isUndefined = true;
+      }
     }
 
     // Turn off one or a range of lights
@@ -364,7 +421,7 @@ function executeScript() {
       let pinInput = el.querySelector(".turnOffBlockPinNum").value.trim();
       let pin = resolveInputToValue(pinInput);
       if(isNaN(pin)){
-        window.alert(`ERROR\nVARIABLE \"${pinInput}\" IS UNDEFINED`);
+        isUndefined = true;
       }
       let pinArray = pin.toString().split(",");
       if (pinArray.length == 1) {
@@ -381,7 +438,7 @@ function executeScript() {
       let color = el.querySelector(".setColorBlockColorInput").value;
       let pin = resolveInputToValue(pinInput);
       if(isNaN(pin)){
-        window.alert(`ERROR\nVARIABLE \"${pinInput}\" IS UNDEFINED`);
+        isUndefined = true;
       }
       const { r, g, b } = parseColor(color || "#00FF00");
       let pinArray = pin.toString().split(",");
@@ -398,7 +455,7 @@ function executeScript() {
       let pinInput = el.querySelector(".setBrightnessBlockPinNum").value.trim();
       let pin = resolveInputToValue(pinInput);
       if(isNaN(pin)){
-        window.alert(`ERROR\nVARIABLE \"${pinInput}\" IS UNDEFINED`);
+        isUndefined = true;
       }
       let pinArray = pin.toString().split(",");
       let brightness = el.querySelector(".setBrightnessBlockBrightnessInput").value;
@@ -414,7 +471,7 @@ function executeScript() {
     else if (el.classList.contains("delayBlock")) {
       const ms = el.querySelector(".delayBlockTime").value;
       if(isNaN(resolveValue(ms))){
-        window.alert(`ERROR\nVARIABLE \"${ms}\" IS UNDEFINED`);
+        isUndefined = true;
       }
       finalCommands.push(`D, ${Math.abs(resolveValue(ms))}`);
       if (ms) blocks.push(new CodeBlock("delay", [], "#000000", { ms }));
@@ -445,18 +502,24 @@ function executeScript() {
     else if (el.classList.contains("rainbowBlock")) {
       finalCommands.push(`R`);
     }
+
   });
 
   //Send to backend if on last iteration
 
   if(currentIteration == getRepeatNum()){
     // Enqueue built commands for processing by the backend bridge
+    if(isUndefined){
+      console.log("%cAn undefined variable was detected. No commands are being sent.", 'color:red;');
+    }
+    else{
 
-    //UNCOMMENT THIS WHEN BACKEND IS RUNNING OR ELSE NOTHING WILL WORK
-    //enqueueProgram("Arduino Nano", finalCommands);
+      //UNCOMMENT THIS WHEN BACKEND IS RUNNING OR ELSE NOTHING WILL WORK
+      //enqueueProgram("Arduino Nano", finalCommands);
 
-    // Debug output
-    console.log("Sending commands to backend: \n", finalCommands);
+      // Debug output
+      console.log("Sending commands to backend: \n", finalCommands);
+    }
 
     // Reset the command buffer after enqueue
     finalCommands = [];
@@ -556,12 +619,12 @@ blockSpace.addEventListener('drop', e => {
   }
   else if(className.includes('multiplyVarBlock')){
     newBlock.innerHTML = 'multiply <select class="varSelect"></select> by <input class="varValueInput" placeholder="value">';
-    newBlock.style.width = '30vh';  
+    newBlock.style.width = '40vh';  
     newBlock.querySelectorAll('.varSelect').forEach(populateVarSelect);
   }
   else if(className.includes('divideVarBlock')){
     newBlock.innerHTML = 'divide <select class="varSelect"></select> by <input class="varValueInput" placeholder="value">';
-    newBlock.style.width = '30vh'
+    newBlock.style.width = '40vh'
     newBlock.querySelectorAll('.varSelect').forEach(populateVarSelect);
   }
 
