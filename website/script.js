@@ -374,7 +374,7 @@ function executeScript() {
   blocks = []; // clear previous run
 
   const blockElements = blockSpace.querySelectorAll(
-    ".setColorBlock, .turnOffBlock, .setBrightnessBlock, .delayBlock, .setVarBlock, .incVarBlock, .changeVarBlock, .multiplyVarBlock, .divideVarBlock, .updateBlock, .setAllColorBlock, .turnOffAllBlock, .rainbowBlock"
+    ".setColorBlock, .turnOffBlock, .setBrightnessBlock, .delayBlock, .setVarBlock, .incVarBlock, .changeVarBlock, .multiplyVarBlock, .divideVarBlock, .setRandomVarBlock, .updateBlock, .setAllColorBlock, .turnOffAllBlock, .rainbowBlock"
   );
 
   blockElements.forEach(el => {
@@ -387,6 +387,14 @@ function executeScript() {
       }
       variables[varName] = Number(value); // update immediately
       blocks.push(new CodeBlock("setVar", [], "#FFFFFF", { varName, value }));
+    }
+
+    else if(el.classList.contains("setRandomVarBlock")){
+      const varName = el.querySelector('.varSelect').value;
+      if(variables[varName] === undefined){
+        isUndefined = true;
+      }
+      variables[varName] = Number(Math.floor(Math.random() * NUM_LIGHTS) + 1);
     }
 
     // Increment variable by a value
@@ -633,6 +641,11 @@ blockSpace.addEventListener('drop', e => {
   else if(className.includes('divideVarBlock')){
     newBlock.innerHTML = 'divide <select class="varSelect"></select> by <input class="varValueInput" placeholder="value">';
     newBlock.style.width = '40vh'
+    newBlock.querySelectorAll('.varSelect').forEach(populateVarSelect);
+  }
+  else if(className.includes('setRandomVarBlock')){
+    newBlock.innerHTML = 'set random <select class="varSelect"></select>';
+    newBlock.style.width = '30vh';
     newBlock.querySelectorAll('.varSelect').forEach(populateVarSelect);
   }
 

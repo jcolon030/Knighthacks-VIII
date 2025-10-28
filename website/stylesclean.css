@@ -129,7 +129,8 @@ header {
 .rainbowBlock,
 .repeatBlock,
 .multiplyVarBlock,
-.divideVarBlock {
+.divideVarBlock,
+.setRandomVarBlock {
   display: flex;
   align-items: center;
   gap: 1vh;
@@ -165,7 +166,8 @@ header {
 .delayBlock input,
 .setAllColorBlock input,
 .repeatBlock input,
-.divideVarBlock input {
+.divideVarBlock input,
+.setRandomVarBlock input {
   width: 5vh;
   border-radius: 0.5vh;
   border: none;
@@ -296,7 +298,8 @@ header {
 .setVarBlock,
 .changeVarBlock,
 .multiplyVarBlock,
-.divideVarBlock {
+.divideVarBlock,
+.setRandomVarBlock {
   display: flex;
   align-items: center;
   gap: 1vh;
@@ -312,7 +315,8 @@ header {
 .setVarBlock:hover,
 .changeVarBlock:hover,
 .multiplyVarBlock:hover,
-.divideVarBlock:hover {
+.divideVarBlock:hover,
+.setRandomVarBlock:hover {
   background-color: hsl(300, 60%, 50%);
   transform: scale(1.05);
 }
@@ -321,6 +325,7 @@ header {
 .changeVarBlock input,
 .multiplyVarBlock input,
 .divideVarBlock input,
+.setRandomVarBlock input,
 select {
   width: 7vh;
   border-radius: 0.5vh;
