@@ -255,10 +255,11 @@ class CodeBlock {
 
 // Create a new variable with user entered value
 function createVariable() {
+  removeUndefinedChoices();
   const nameInput = document.getElementById('newVarName');
   const name = nameInput.value.trim();
   if (!name) return alert("Enter a variable name");
-  if (variables[name] !== undefined) return alert("Variable already exists");
+  if (variables[name] !== undefined){alert("Variable already exists"); return;}
   let tempVal;
   do{
     tempVal = parseInt(window.prompt("Enter a starting value for your variable"));
@@ -321,7 +322,7 @@ function removeUndefinedChoices(){
 
   //Remove undefined from JS object
   for (const key in variables) {
-    if (variables[key] === undefined) {
+    if (variables[key] === undefined || isNaN(variables[key])) {
       delete variables[key];
     }
   }
@@ -351,6 +352,18 @@ function executeRepeatedly(){
     executeScript();
     if(isUndefined){
       window.alert(`ERROR\nUNDEFINED VARIABLE`);
+      console.log("%cAn undefined variable was detected. No commands are being sent.", 'color:red;');
+      finalCommands = [];
+      currentIteration = 0;
+
+      let i = 0;
+      //Set variables back to their starting values
+      console.log("Resetting variables back to their starting values...\n");
+      for (let key in variables) {
+        variables[key] = variablesStartingValues[i];
+        i++;
+      }
+      
       break;
     }
   }
@@ -509,17 +522,12 @@ function executeScript() {
 
   if(currentIteration == getRepeatNum()){
     // Enqueue built commands for processing by the backend bridge
-    if(isUndefined){
-      console.log("%cAn undefined variable was detected. No commands are being sent.", 'color:red;');
-    }
-    else{
 
-      //UNCOMMENT THIS WHEN BACKEND IS RUNNING OR ELSE NOTHING WILL WORK
-      //enqueueProgram("Arduino Nano", finalCommands);
+    //UNCOMMENT THIS WHEN BACKEND IS RUNNING OR ELSE NOTHING WILL WORK
+    //enqueueProgram("Arduino Nano", finalCommands);
 
-      // Debug output
-      console.log("Sending commands to backend: \n", finalCommands);
-    }
+    // Debug output
+    console.log("Sending commands to backend: \n", finalCommands);
 
     // Reset the command buffer after enqueue
     finalCommands = [];
