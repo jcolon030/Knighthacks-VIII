@@ -532,7 +532,7 @@ function executeScript() {
 
   //Send to backend if on last iteration
 
-  if(currentIteration == getRepeatNum()){
+  if(currentIteration == getRepeatNum() && !isUndefined){
     // Enqueue built commands for processing by the backend bridge
 
     //UNCOMMENT THIS WHEN BACKEND IS RUNNING OR ELSE NOTHING WILL WORK
