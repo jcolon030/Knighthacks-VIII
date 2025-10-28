@@ -418,3 +418,11 @@ select {
 #closeTutorial {
     display: none;
 }
+
+#processing{
+  color:white;
+  position: fixed;
+  bottom: 0;
+  right: 1vw;
+  display:none;
+}

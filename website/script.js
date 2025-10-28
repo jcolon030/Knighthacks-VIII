@@ -344,6 +344,7 @@ function removeUndefinedChoices(){
 
 let isUndefined;
 function executeRepeatedly(){
+  document.getElementById("processing").style.display = 'inline';
   isUndefined = false;
   currentIteration = 0;
   timesToRepeat = getRepeatNum();
@@ -351,6 +352,7 @@ function executeRepeatedly(){
   for(let i = 0; i < timesToRepeat; i++){
     executeScript();
     if(isUndefined){
+      document.getElementById("processing").style.display = 'none';
       window.alert(`ERROR\nUNDEFINED VARIABLE`);
       console.log("%cAn undefined variable was detected. No commands are being sent.", 'color:red;');
       finalCommands = [];
@@ -367,6 +369,8 @@ function executeRepeatedly(){
       break;
     }
   }
+
+  document.getElementById("processing").style.display = 'none';
 }
 
 function executeScript() {
