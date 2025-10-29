@@ -467,10 +467,23 @@ function executeScript() {
       let pinInput = el.querySelector(".turnOffBlockPinNum").value.trim();
       let pin = resolveInputToValue(pinInput);
       let pinArray = pin.toString().split(",");
-      if(isNaN(pinArray[0])){
-        el.querySelector(".turnOffBlockPinNum").style.backgroundColor = 'red';
-        isUndefined = true;
+      if(pinArray.length > 1){
+        if(!isNaN(resolveInputToValue(pinArray[0])) && !isNaN(resolveInputToValue(pinArray[1]))){
+          pinArray[0] = resolveInputToValue(pinArray[0]);
+          pinArray[1] = resolveInputToValue(pinArray[1]);
+        }
+        else{
+          el.querySelector(".turnOffBlockPinNum").style.backgroundColor = 'red';
+          isUndefined = true;
+        }
       }
+      else{
+        if(isNaN(pinArray[0])){
+          el.querySelector(".turnOffBlockPinNum").style.backgroundColor = 'red';
+          isUndefined = true;
+        }
+      }
+
       if (pinArray.length == 1) {
         finalCommands.push(`C, ${Math.abs(((parseInt(pinArray[0]) - 1)%NUM_LIGHTS)).toString()}, ${Math.abs(((parseInt(pinArray[0]) - 1)%NUM_LIGHTS)).toString()}`);
       } else {
@@ -486,11 +499,22 @@ function executeScript() {
       let pin = resolveInputToValue(pinInput);
       const { r, g, b } = parseColor(color || "#00FF00");
       let pinArray = pin.toString().split(",");
-      if(isNaN(pinArray[0])){
-        el.querySelector(".setColorBlockPinNum").style.backgroundColor = 'red';
-        isUndefined = true;
+      if(pinArray.length > 1){
+        if(!isNaN(resolveInputToValue(pinArray[0])) && !isNaN(resolveInputToValue(pinArray[1]))){
+          pinArray[0] = resolveInputToValue(pinArray[0]);
+          pinArray[1] = resolveInputToValue(pinArray[1]);
+        }
+        else{
+          el.querySelector(".setColorBlockPinNum").style.backgroundColor = 'red';
+          isUndefined = true;
+        }
       }
-      console.log(`pinarray is ${pinArray}`);
+      else{
+        if(isNaN(pinArray[0])){
+          el.querySelector(".setColorBlockPinNum").style.backgroundColor = 'red';
+          isUndefined = true;
+        }
+      }
       if (pinArray.length == 1) {
         finalCommands.push(`L, ${Math.abs(((parseInt(pinArray[0]) - 1)%NUM_LIGHTS)).toString()}, ${Math.abs(((parseInt(pinArray[0]) - 1)%NUM_LIGHTS)).toString()}, ${r}, ${g}, ${b}`);
       } else {
@@ -504,9 +528,21 @@ function executeScript() {
       let pinInput = el.querySelector(".setBrightnessBlockPinNum").value.trim();
       let pin = resolveInputToValue(pinInput);
       let pinArray = pin.toString().split(",");
-      if(isNaN(pinArray[0])){
-        el.querySelector(".setBrightnessBlockPinNum").style.backgroundColor = 'red';
-        isUndefined = true;
+      if(pinArray.length > 1){
+        if(!isNaN(resolveInputToValue(pinArray[0])) && !isNaN(resolveInputToValue(pinArray[1]))){
+          pinArray[0] = resolveInputToValue(pinArray[0]);
+          pinArray[1] = resolveInputToValue(pinArray[1]);
+        }
+        else{
+          el.querySelector(".setBrightnessBlockPinNum").style.backgroundColor = 'red';
+          isUndefined = true;
+        }
+      }
+      else{
+        if(isNaN(pinArray[0])){
+          el.querySelector(".setBrightnessBlockPinNum").style.backgroundColor = 'red';
+          isUndefined = true;
+        }
       }
       let brightness = el.querySelector(".setBrightnessBlockBrightnessInput").value;
       if (pinArray.length == 1) {
