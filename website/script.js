@@ -268,9 +268,13 @@ function createVariable() {
   variablesStartingValues.push(tempVal);
   renderVariables();
   nameInput.value = '';
-  let numselects = document.getElementsByClassName("varSelect").length;
+  let selects = document.getElementsByClassName("varSelect");
+  let numselects = selects.length;
   for(let i = 0; i < numselects; i++){
-    populateVarSelect(document.getElementsByClassName("varSelect").item(i));
+    let select = selects[i];
+    if(!select.value || select.value.trim() === ''){
+      populateVarSelect(select);
+    }
   }
 }
 
@@ -716,8 +720,14 @@ function saveScript(){
     document.querySelectorAll("#blockSpace input")
   ).map(input => input.value);
 
+  let selectsArray = Array.from(
+    document.querySelectorAll("#blockSpace select")
+  ).map(select => select.value);
+
+  //console.log(selectsArray);
+
   let textContentDownload = document.getElementById("blockSpace").innerHTML;
-  let combinedTextContent = textContentDownload + "\n<!--INPUTS:" + JSON.stringify(inputsArray) + "-->";
+  let combinedTextContent = textContentDownload + "\n<!--INPUTS:" + JSON.stringify(inputsArray) + "-->" + "\n<!--SELECTS:" + JSON.stringify(selectsArray) + "-->";
 
   const tempElement = document.createElement('a');
   tempElement.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(combinedTextContent));
@@ -730,7 +740,7 @@ function saveScript(){
   //console.log(`\ninputsArray: ${inputsArray}`);
 }
 
-function loadScript(){
+function loadScript() {
   let input = document.createElement('input');
   input.type = 'file';
   input.accept = '.txt';
@@ -744,12 +754,19 @@ function loadScript(){
       const fileContent = event.target.result;
       console.log("Loaded script content:\n", fileContent);
 
-      const [htmlPart, inputsPart] = fileContent.split('<!--INPUTS:');
-      const inputsJSON = inputsPart?.split('-->')[0];
-      const inputsArray = JSON.parse(inputsJSON || "[]");
+      // Split the sections
+      const [htmlPart, inputsAndSelects] = fileContent.split('<!--INPUTS:');
+      const [inputsJSONPart, selectsPart] = (inputsAndSelects || "").split('<!--SELECTS:');
+      const inputsJSON = inputsJSONPart?.split('-->')[0];
+      const selectsJSON = selectsPart?.split('-->')[0];
 
+      const inputsArray = JSON.parse(inputsJSON || "[]");
+      const selectsArray = JSON.parse(selectsJSON || "[]");
+
+      // Restore HTML first
       document.getElementById("blockSpace").innerHTML = htmlPart;
 
+      // Restore input values
       const inputs = document.querySelectorAll("#blockSpace input");
       inputs.forEach((input, i) => {
         if (inputsArray[i] !== undefined) {
@@ -757,7 +774,15 @@ function loadScript(){
         }
       });
 
+      // Restore select values
+      const selects = document.querySelectorAll("#blockSpace select");
+      selects.forEach((select, i) => {
+        if (selectsArray[i] !== undefined) {
+          select.value = selectsArray[i];
+        }
+      });
     };
+
     reader.readAsText(file);
   };
 
