@@ -341,6 +341,16 @@ function removeUndefinedChoices(){
   });
 }
 
+function setAllInputsWhite(){
+  const panel = document.querySelector('#blockSpace');
+  panel.querySelectorAll('input').forEach(input =>{
+    input.style.backgroundColor = 'white';
+  });
+  panel.querySelectorAll('select').forEach(select =>{
+    select.style.backgroundColor = 'white';
+  });
+}
+
 // ======================
 // Execute Script
 // Walk the UI blocks, build CodeBlock objects, and emit command strings
@@ -348,6 +358,7 @@ function removeUndefinedChoices(){
 
 let isUndefined;
 function executeRepeatedly(){
+  setAllInputsWhite();
   document.getElementById("processing").style.display = 'inline';
   isUndefined = false;
   currentIteration = 0;
@@ -391,6 +402,7 @@ function executeScript() {
       const varName = el.querySelector('.varSelect').value;
       const value = resolveInputToValue(el.querySelector('.varValueInput').value);
       if(variables[varName] === undefined){
+        el.querySelector(".varSelect").style.backgroundColor = 'red';
         isUndefined = true;
       }
       variables[varName] = Number(value); // update immediately
@@ -400,6 +412,7 @@ function executeScript() {
     else if(el.classList.contains("setRandomVarBlock")){
       const varName = el.querySelector('.varSelect').value;
       if(variables[varName] === undefined){
+        el.querySelector(".varSelect").style.backgroundColor = 'red';
         isUndefined = true;
       }
       variables[varName] = Number(Math.floor(Math.random() * NUM_LIGHTS) + 1);
@@ -411,6 +424,7 @@ function executeScript() {
       const value = resolveInputToValue(el.querySelector('.varValueInput').value);
       variables[varName] += Number(value); // increment immediately
       if(variables[varName] === undefined){
+        el.querySelector(".varSelect").style.backgroundColor = 'red';
         isUndefined = true;
       }
       blocks.push(new CodeBlock("incVar", [], "#FFFFFF", { varName, value }));
@@ -421,6 +435,7 @@ function executeScript() {
       const value = resolveInputToValue(el.querySelector('.varValueInput').value);
       variables[varName] *= Number(value);
       if(isNaN(variables[varName])){
+        el.querySelector(".varSelect").style.backgroundColor = 'red';
         isUndefined = true;
       }
     }
@@ -430,6 +445,7 @@ function executeScript() {
       const value = resolveInputToValue(el.querySelector('.varValueInput').value);
       variables[varName] /= Number(value);
       if(isNaN(variables[varName])){
+        el.querySelector(".varSelect").style.backgroundColor = 'red';
         isUndefined = true;
       }
     }
@@ -441,6 +457,7 @@ function executeScript() {
       variables[varName] += Number(value);
       blocks.push(new CodeBlock("changeVar", [], "#FFFFFF", { varName, value }));
       if(isNaN(variables[varName])){
+        el.querySelector(".varSelect").style.backgroundColor = 'red';
         isUndefined = true;
       }
     }
@@ -449,10 +466,11 @@ function executeScript() {
     else if (el.classList.contains("turnOffBlock")) {
       let pinInput = el.querySelector(".turnOffBlockPinNum").value.trim();
       let pin = resolveInputToValue(pinInput);
-      if(isNaN(pin)){
+      let pinArray = pin.toString().split(",");
+      if(isNaN(pinArray[0])){
+        el.querySelector(".turnOffBlockPinNum").style.backgroundColor = 'red';
         isUndefined = true;
       }
-      let pinArray = pin.toString().split(",");
       if (pinArray.length == 1) {
         finalCommands.push(`C, ${Math.abs(((parseInt(pinArray[0]) - 1)%NUM_LIGHTS)).toString()}, ${Math.abs(((parseInt(pinArray[0]) - 1)%NUM_LIGHTS)).toString()}`);
       } else {
@@ -466,11 +484,13 @@ function executeScript() {
       let pinInput = el.querySelector(".setColorBlockPinNum").value.trim();
       let color = el.querySelector(".setColorBlockColorInput").value;
       let pin = resolveInputToValue(pinInput);
-      if(isNaN(pin)){
-        isUndefined = true;
-      }
       const { r, g, b } = parseColor(color || "#00FF00");
       let pinArray = pin.toString().split(",");
+      if(isNaN(pinArray[0])){
+        el.querySelector(".setColorBlockPinNum").style.backgroundColor = 'red';
+        isUndefined = true;
+      }
+      console.log(`pinarray is ${pinArray}`);
       if (pinArray.length == 1) {
         finalCommands.push(`L, ${Math.abs(((parseInt(pinArray[0]) - 1)%NUM_LIGHTS)).toString()}, ${Math.abs(((parseInt(pinArray[0]) - 1)%NUM_LIGHTS)).toString()}, ${r}, ${g}, ${b}`);
       } else {
@@ -483,10 +503,11 @@ function executeScript() {
     else if (el.classList.contains("setBrightnessBlock")) {
       let pinInput = el.querySelector(".setBrightnessBlockPinNum").value.trim();
       let pin = resolveInputToValue(pinInput);
-      if(isNaN(pin)){
+      let pinArray = pin.toString().split(",");
+      if(isNaN(pinArray[0])){
+        el.querySelector(".setBrightnessBlockPinNum").style.backgroundColor = 'red';
         isUndefined = true;
       }
-      let pinArray = pin.toString().split(",");
       let brightness = el.querySelector(".setBrightnessBlockBrightnessInput").value;
       if (pinArray.length == 1) {
         finalCommands.push(`B, ${Math.abs(((parseInt(pinArray[0]) - 1)%NUM_LIGHTS)).toString()}, ${Math.abs(((parseInt(pinArray[0]) - 1)%NUM_LIGHTS)).toString()}, ${parseBrightness(parseInt(brightness)).toString()}`);
@@ -500,6 +521,7 @@ function executeScript() {
     else if (el.classList.contains("delayBlock")) {
       const ms = el.querySelector(".delayBlockTime").value;
       if(isNaN(resolveValue(ms))){
+        el.querySelector(".delayBlockTime").style.backgroundColor = 'red';
         isUndefined = true;
       }
       finalCommands.push(`D, ${Math.abs(resolveValue(ms))}`);
